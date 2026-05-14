@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
+import { useUserStore } from "@/store/user-store";
+import { UserAvatar } from "@/components/shared/user-avatar";
 import {
   Tooltip,
   TooltipContent,
@@ -93,6 +95,7 @@ function NavLink({
 export function Sidebar() {
   const pathname = usePathname();
   const { sidebarCollapsed, toggleSidebar } = useUIStore();
+  const { user } = useUserStore();
 
   return (
     <motion.aside
@@ -228,6 +231,42 @@ export function Sidebar() {
             )}
           </AnimatePresence>
         </button>
+      </div>
+
+      {/* ─── User Profile ─── */}
+      <div className="px-2 py-3 border-t border-sidebar-border">
+        <div
+          className={cn(
+            "flex items-center gap-2.5 px-2.5 py-2 rounded-lg",
+            "hover:bg-accent/60 transition-colors cursor-pointer",
+            sidebarCollapsed && "justify-center px-0"
+          )}
+        >
+          <UserAvatar
+            name={user?.displayName || "Student"}
+            src={user?.avatarUrl}
+            size="sm"
+            showOnline
+          />
+          <AnimatePresence>
+            {!sidebarCollapsed && (
+              <motion.div
+                initial={{ opacity: 0, x: -4 }}
+                animate={{ opacity: 1, x: 0 }}
+                exit={{ opacity: 0, x: -4 }}
+                transition={{ duration: 0.12 }}
+                className="flex-1 min-w-0"
+              >
+                <p className="text-[12px] font-semibold truncate">
+                  {user?.displayName || "Student"}
+                </p>
+                <p className="text-[10px] text-muted-foreground truncate">
+                  ⚡ {user?.knowledgeCredits ?? 142} KC
+                </p>
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
       </div>
     </motion.aside>
   );

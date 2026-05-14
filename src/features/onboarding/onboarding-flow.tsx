@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useState, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import {
@@ -95,6 +95,24 @@ export function OnboardingFlow() {
       prevStep();
     }
   }
+
+  // ─── Keyboard navigation ───
+  useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      // Ignore when user is typing in an input/textarea
+      const tag = (e.target as HTMLElement)?.tagName;
+      if (tag === "INPUT" || tag === "TEXTAREA" || tag === "SELECT") return;
+
+      if (e.key === "Enter" && canProceed()) {
+        e.preventDefault();
+        if (step < TOTAL_STEPS) handleNext();
+        else handleComplete();
+      }
+    }
+    document.addEventListener("keydown", handleKeyDown);
+    return () => document.removeEventListener("keydown", handleKeyDown);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [step, data]);
 
   const handleComplete = useCallback(async () => {
     setSubmitting(true);

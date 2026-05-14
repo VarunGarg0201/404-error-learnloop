@@ -42,7 +42,7 @@ export function SessionTimer({ onTimerAction, className, isHost = false }: Sessi
     } else {
       setDisplaySeconds(timerState.remainingSeconds);
     }
-  }, [timerState?.isRunning, timerState?.lastStartedAt, timerState?.remainingSeconds]);
+  }, [timerState?.isRunning, timerState?.lastStartedAt, timerState?.remainingSeconds, timerState]);
 
   // Local tick loop for smooth UI
   useEffect(() => {

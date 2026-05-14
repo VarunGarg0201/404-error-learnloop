@@ -272,7 +272,7 @@ export async function generateAIExplanation(
   } catch (error) {
     console.error("AI Explanation generation failed:", error);
     // Fallback to existing rule-based logic
-    return generateExplanation(user, candidate, {} as any, reasons);
+    return generateExplanation(user, candidate, {} as Omit<MatchScore, "overall">, reasons);
   }
 }
 

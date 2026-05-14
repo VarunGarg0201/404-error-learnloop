@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { PageHeader } from "@/components/shared/page-header";
 import { EmptyState } from "@/components/shared/empty-state";
 import { SurfaceCard } from "@/components/shared/cards";
@@ -154,34 +155,56 @@ export default function DiscoverPage() {
 
       {/* Match list */}
       <div className="space-y-3">
-        {loading ? (
-          <>
-            <MatchCardSkeleton />
-            <MatchCardSkeleton />
-            <MatchCardSkeleton />
-          </>
-        ) : matches.length > 0 ? (
-          matches.map((match, i) => (
-            <MatchCard key={match.user.id} match={match} rank={i + 1} />
-          ))
-        ) : (
-          <EmptyState
-            icon={Sparkles}
-            title="No matches found"
-            description="Try adjusting your filters or updating your profile to find better matches."
-            action={
-              <Button
-                size="sm"
-                variant="secondary"
-                onClick={() =>
-                  setFilters({ onlineOnly: false, campusOnly: false })
+        <AnimatePresence mode="popLayout" initial={false}>
+          {loading ? (
+            <motion.div
+              key="loading"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="space-y-3"
+            >
+              <MatchCardSkeleton />
+              <MatchCardSkeleton />
+              <MatchCardSkeleton />
+            </motion.div>
+          ) : matches.length > 0 ? (
+            <motion.div
+              key="results"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              className="space-y-3"
+            >
+              {matches.map((match, i) => (
+                <MatchCard key={match.user.id} match={match} rank={i + 1} />
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div
+              key="empty"
+              initial={{ opacity: 0, y: 10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+            >
+              <EmptyState
+                icon={Sparkles}
+                title="No matches found"
+                description="Try adjusting your filters or updating your profile to find better matches."
+                action={
+                  <Button
+                    size="sm"
+                    variant="secondary"
+                    onClick={() =>
+                      setFilters({ onlineOnly: false, campusOnly: false })
+                    }
+                  >
+                    Clear filters
+                  </Button>
                 }
-              >
-                Clear filters
-              </Button>
-            }
-          />
-        )}
+              />
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </div>
   );

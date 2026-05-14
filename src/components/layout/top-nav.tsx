@@ -1,6 +1,7 @@
 "use client";
 
 import { Bell, Search, Sparkles } from "lucide-react";
+import { usePathname } from "next/navigation";
 import { useUIStore } from "@/store/ui-store";
 import { useUserStore } from "@/store/user-store";
 import { signOut } from "@/features/auth/actions";
@@ -17,13 +18,28 @@ import {
 import { cn } from "@/lib/utils";
 import Link from "next/link";
 
+const PAGE_TITLES: Record<string, string> = {
+  "/dashboard": "Dashboard",
+  "/discover": "Discover",
+  "/rooms": "Study Rooms",
+  "/squads": "Learning Squads",
+  "/communities": "Communities",
+  "/profile": "Profile",
+  "/settings": "Settings",
+  "/assistant": "AI Assistant",
+};
+
 interface TopNavProps {
   title?: string;
 }
 
 export function TopNav({ title }: TopNavProps) {
+  const pathname = usePathname();
   const { setAiPanelOpen } = useUIStore();
   const { user } = useUserStore();
+
+  const pageTitle = title || PAGE_TITLES[pathname] || "";
+
 
   return (
     <header
@@ -35,8 +51,8 @@ export function TopNav({ title }: TopNavProps) {
     >
       {/* Left: Page title */}
       <div className="flex items-center gap-3">
-        {title && (
-          <h1 className="text-sm font-semibold tracking-tight">{title}</h1>
+        {pageTitle && (
+          <h1 className="text-sm font-semibold tracking-tight">{pageTitle}</h1>
         )}
       </div>
 

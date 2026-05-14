@@ -1,9 +1,11 @@
 "use client";
 
+import { useState, useEffect } from "react";
 import { QuickAction } from "@/components/shared/widgets";
 import { SurfaceCard } from "@/components/shared/cards";
 import { UserAvatar } from "@/components/shared/user-avatar";
 import { KCBadge } from "@/components/shared/badges";
+import { LoadingSpinner } from "@/components/shared/loading-states";
 import { useUserStore } from "@/store/user-store";
 import {
   Sparkles,
@@ -24,9 +26,20 @@ import { SquadsWidget, CommunitiesWidget } from "@/features/dashboard/widgets/sq
    ═══════════════════════════════════════════════════════════ */
 
 export default function DashboardPage() {
-  const { user } = useUserStore();
+  const { user, isLoading } = useUserStore();
   const displayName = user?.displayName || "there";
-  const greeting = getGreeting();
+  const [greeting, setGreeting] = useState("Welcome");
+  const [mounted, setMounted] = useState(false);
+
+  // Avoid hydration mismatch — greeting depends on client time
+  useEffect(() => {
+    setGreeting(getGreeting());
+    setMounted(true);
+  }, []);
+
+  if (isLoading && !user) {
+    return <LoadingSpinner className="py-32" />;
+  }
 
   return (
     <div className="space-y-8 stagger-children">
@@ -91,9 +104,9 @@ export default function DashboardPage() {
       <StatsRow />
 
       {/* ─── Main Content Grid ─── */}
-      <div className="grid gap-5 lg:grid-cols-12">
+      <div className="grid gap-5 md:grid-cols-2 lg:grid-cols-12">
         {/* Left Column — Primary content (8 cols) */}
-        <div className="lg:col-span-8 space-y-5">
+        <div className="md:col-span-1 lg:col-span-8 space-y-5">
           <AIMatchesWidget />
           <div className="grid gap-5 sm:grid-cols-2">
             <HelpRequestsWidget />
@@ -103,7 +116,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column — Secondary content (4 cols) */}
-        <div className="lg:col-span-4 space-y-5">
+        <div className="md:col-span-1 lg:col-span-4 space-y-5">
           <GrowthWidget />
           <ContributionStatsWidget />
           <NotificationsWidget />
@@ -115,11 +128,13 @@ export default function DashboardPage() {
   );
 }
 
-/* ─── Helper ─── */
+/* ─── Helper (client-only) ─── */
 function getGreeting(): string {
   const hour = new Date().getHours();
+  if (hour < 5) return "Late night";
   if (hour < 12) return "Good morning";
   if (hour < 17) return "Good afternoon";
-  return "Good evening";
+  if (hour < 21) return "Good evening";
+  return "Late night";
 }
 

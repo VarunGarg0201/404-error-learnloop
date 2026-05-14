@@ -63,7 +63,7 @@ export function inferDNATraits(
     // Confidence grows with the number of sessions (logarithmic scaling)
     // Formula: baseline * min(1, 0.5 + log10(totalSessions + 1)/2)
     const sessionMultiplier = Math.min(1, 0.5 + Math.log10(totalSessions + 1) / 2);
-    let finalConfidence = baseConfidence * sessionMultiplier;
+    const finalConfidence = baseConfidence * sessionMultiplier;
 
     // Only add traits if confidence is decent (> 40%)
     if (finalConfidence > 0.4) {

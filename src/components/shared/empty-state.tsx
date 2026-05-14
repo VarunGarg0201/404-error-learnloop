@@ -26,6 +26,7 @@ export function EmptyState({
       {/* Breathing icon with gradient ring */}
       <div className="relative mb-6">
         <div className="absolute inset-0 rounded-2xl bg-primary/5 animate-breathe blur-xl" />
+        <div className="absolute -inset-3 rounded-3xl border border-dashed border-border/40 animate-breathe" />
         <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-muted/60 border border-border/50">
           <Icon className="w-6 h-6 text-muted-foreground" />
         </div>
@@ -36,4 +37,3 @@ export function EmptyState({
     </div>
   );
 }
-

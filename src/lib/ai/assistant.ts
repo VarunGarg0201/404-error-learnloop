@@ -11,6 +11,13 @@ const SYSTEM_PROMPT = `You are the LearnLoop AI Assistant, an expert tutor.
 Your tone is encouraging, concise, and highly educational. 
 Always structure your answers clearly.`;
 
+interface QuizQuestion {
+  question: string;
+  options: string[];
+  correctAnswer: string;
+  explanation: string;
+}
+
 export async function generateQuiz(topic: string, difficulty: "beginner" | "intermediate" | "advanced") {
   try {
     const response = await openai.chat.completions.create({
@@ -31,7 +38,7 @@ export async function generateQuiz(topic: string, difficulty: "beginner" | "inte
       response_format: { type: "json_object" },
     });
 
-    const parsed = parseAIJson<{ questions: any[] }>(response.choices[0].message.content);
+    const parsed = parseAIJson<{ questions: QuizQuestion[] }>(response.choices[0].message.content);
     return parsed || { questions: [] };
   } catch (error) {
     console.error("Quiz generation failed:", error);

@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { Suspense, useState } from "react";
+import { useSearchParams } from "next/navigation";
 import { signInWithEmail } from "@/features/auth/actions";
 import {
   OAuthButtons,
@@ -13,8 +14,14 @@ import { Separator } from "@/components/ui/separator";
 import { Zap } from "lucide-react";
 import Link from "next/link";
 
-export default function LoginPage() {
-  const [error, setError] = useState<string | null>(null);
+function LoginForm() {
+  const searchParams = useSearchParams();
+  const callbackError = searchParams.get("error");
+  const [error, setError] = useState<string | null>(
+    callbackError === "auth_callback_failed"
+      ? "Authentication failed. Please try again."
+      : null
+  );
   const [loading, setLoading] = useState(false);
 
   async function handleSubmit(formData: FormData) {
@@ -87,5 +94,13 @@ export default function LoginPage() {
         </Link>
       </p>
     </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <Suspense>
+      <LoginForm />
+    </Suspense>
   );
 }

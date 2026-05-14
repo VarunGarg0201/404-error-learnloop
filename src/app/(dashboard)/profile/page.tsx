@@ -19,6 +19,8 @@ import { ActivityTimeline } from "@/features/profile/sections/activity-timeline"
 export default function ProfilePage() {
   const { user } = useUserStore();
 
+  const defaultBio = "Passionate about web development and teaching. I love breaking down complex topics into simple explanations. Always learning, always sharing.";
+
   return (
     <div className="space-y-4 stagger-children">
       {/* ─── Profile Header (full width) ─── */}
@@ -26,14 +28,14 @@ export default function ProfilePage() {
         displayName={user?.displayName || "Student"}
         username={user?.username || "username"}
         avatarUrl={user?.avatarUrl}
-        bio="Passionate about web development and teaching. I love breaking down complex topics into simple explanations. Always learning, always sharing."
+        bio={user?.bio || defaultBio}
         campus={user?.campus || "IIT Delhi"}
         stream={user?.stream || "Computer Science"}
         year={user?.year || "3rd Year"}
         knowledgeCredits={user?.knowledgeCredits ?? 1420}
         trustScore={user?.trustScore ?? 4.8}
         totalSessions={65}
-        memberSince="Oct 2025"
+        memberSince={"Oct 2025"}
         isOnline
         isOwnProfile
       />
