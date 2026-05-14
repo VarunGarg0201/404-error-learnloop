@@ -228,51 +228,15 @@ export function generateExplanation(
 }
 
 /* ─── Generate AI Summary Explanation ─── */
-import { openai, AI_MODELS, parseAIJson } from "./openai-client";
+// import { openai, AI_MODELS, parseAIJson } from "./openai-client";
 
 export async function generateAIExplanation(
   user: MatchableProfile,
   candidate: MatchableProfile,
   reasons: MatchReason[]
 ): Promise<MatchExplanation> {
-  try {
-    const strongReasons = reasons.filter((r) => r.strength === "strong").map(r => r.detail);
-    const goodReasons = reasons.filter((r) => r.strength === "good").map(r => r.detail);
-
-    const response = await openai.chat.completions.create({
-      model: AI_MODELS.FAST,
-      messages: [
-        { 
-          role: "system", 
-          content: "You are the LearnLoop Matchmaker AI. Your job is to explain why two students are a good match for studying together. Keep it very concise, encouraging, and output valid JSON only." 
-        },
-        { 
-          role: "user", 
-          content: `Generate a match explanation for the user and ${candidate.displayName}.
-          Strong compatibility reasons: ${strongReasons.join(", ")}
-          Good compatibility reasons: ${goodReasons.join(", ")}
-          
-          Output format:
-          {
-            "summary": "A friendly 1-2 sentence summary of why they match.",
-            "highlights": ["Highlight 1 with emoji", "Highlight 2 with emoji"],
-            "complementary": ["How they complement each other (max 2)"],
-            "tips": ["One actionable tip for their first session"]
-          }`
-        }
-      ],
-      response_format: { type: "json_object" },
-    });
-
-    const parsed = parseAIJson<MatchExplanation>(response.choices[0].message.content);
-    
-    // Fallback to rule-based if AI fails
-    if (!parsed) throw new Error("Parse failed");
-    return parsed;
-  } catch (error) {
-    console.error("AI Explanation generation failed:", error);
-    // Fallback to existing rule-based logic
-    return generateExplanation(user, candidate, {} as Omit<MatchScore, "overall">, reasons);
-  }
+  // Client-safe fallback: we removed OpenAI from the client bundle to prevent crashes.
+  // Returns the high-quality deterministic explanation instead.
+  return generateExplanation(user, candidate, {} as Omit<MatchScore, "overall">, reasons);
 }
 
