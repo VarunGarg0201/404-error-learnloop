@@ -1,36 +1,82 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# ⚡️ LearnLoop
 
-## Getting Started
+> **Learn. Teach. Grow Together.** 
+> An AI-powered peer-to-peer learning ecosystem designed exclusively for students.
 
-First, run the development server:
+<br />
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## 👋 Hey there!
+Ever felt stuck on a concept at 2 AM, wishing you could just ask a classmate who *actually gets it*? We did too. 
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+**LearnLoop** isn't just another studying tool. It's a living, breathing student community where you can instantly find study partners based on your unique "Learning DNA", join live virtual study rooms, and earn reputation (Knowledge Credits) by helping others. We believe that teaching is the best way to learn, and we built LearnLoop to make that process seamless, rewarding, and fun.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## ✨ Features that make it magical
 
-## Learn More
+- 🧬 **Learning DNA & AI Matchmaking:** Our AI analyzes how you learn best and instantly connects you with peers whose teaching style perfectly complements your needs.
+- 🎙️ **Live Study Rooms:** Jump into real-time collaborative spaces (focus sessions, whiteboarding, or coding) with synchronized Pomodoro timers and shared notes.
+- 🛡️ **Squads & Accountability:** Form micro-communities with shared goals. Keep streaks alive, check-in daily, and hold each other accountable.
+- 🏫 **Campus Communities:** Discover trending topics, join course-specific groups, and connect with people at your university.
+- 💎 **Knowledge Credits (KC):** A gamified reputation system. Earn KC and trust score points by helping others, creating a culture of positive sum growth.
+- 🌙 **Premium Dark-Mode First Design:** A distraction-free, hyper-polished interface built for late-night grind sessions.
 
-To learn more about Next.js, take a look at the following resources:
+---
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 🛠️ Built with modern tools
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+LearnLoop is built for performance and a premium user experience:
+- **Framework:** [Next.js](https://nextjs.org/) (App Router)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/) & [shadcn/ui](https://ui.shadcn.com/)
+- **Animations:** [Framer Motion](https://www.framer.com/motion/)
+- **Database & Auth:** [Supabase](https://supabase.com/) (PostgreSQL)
+- **State Management:** [Zustand](https://zustand-demo.pmnd.rs/)
+- **AI Integration:** OpenAI API
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## 🚀 Running it locally
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Want to spin up LearnLoop on your own machine? It's easy.
+
+### Prerequisites
+- Node.js (v18 or newer)
+- npm or pnpm
+- A Supabase account (for database & auth)
+
+### Setup
+
+1. **Clone the repo**
+   ```bash
+   git clone git@github.com:VarunGarg0201/404-error-learnloop.git
+   cd 404-error-learnloop
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Environment Variables**
+   Create a `.env.local` file in the root directory and add your Supabase keys:
+   ```env
+   NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
+   ```
+
+4. **Fire it up!**
+   ```bash
+   npm run dev
+   ```
+   Open [http://localhost:3000](http://localhost:3000) in your browser. 
+
+---
+
+## 💡 The Vision
+This project was built during a hackathon! Our vision for the future includes deeper AI tutoring integrations, live WebRTC video/audio rooms, and campus-wide verified leaderboards. 
+
+<br />
+
+<div align="center">
+  <i>Built with 🤍 for students everywhere.</i>
+</div>
