@@ -79,7 +79,17 @@ export async function signUpWithEmail(
 export async function signInWithOAuth(provider: "google" | "github") {
   const supabase = await createClient();
   const headerStore = await headers();
-  const origin = headerStore.get("origin") || "http://localhost:3000";
+  
+  // Robustly determine the origin for the redirect URL
+  const protocol = headerStore.get("x-forwarded-proto") || "http";
+  const host = headerStore.get("host");
+  let origin = host ? `${protocol}://${host}` : "http://localhost:3000";
+  
+  if (process.env.NEXT_PUBLIC_SITE_URL) {
+    origin = process.env.NEXT_PUBLIC_SITE_URL;
+  } else if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+    origin = `https://${process.env.NEXT_PUBLIC_VERCEL_URL}`;
+  }
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider,

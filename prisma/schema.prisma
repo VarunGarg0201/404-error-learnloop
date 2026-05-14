@@ -1,15 +1,172 @@
 generator client {
-  provider = "prisma-client-js"
+  provider        = "prisma-client-js"
+  previewFeatures = ["driverAdapters"]
 }
 
 datasource db {
-  provider = "postgresql"
+  provider  = "postgresql"
 }
 
 model User {
+  id               String   @id @default(uuid())
+  email            String   @unique
+  username         String   @unique @default(cuid())
+  displayName      String
+  avatarUrl        String?
+  campus           String?
+  stream           String?
+  year             String?
+  bio              String?
+  knowledgeCredits Int      @default(0)
+  trustScore       Int      @default(100)
+  isOnboarded      Boolean  @default(false)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  // Relations
+  dnaTraits        LearningDNATrait[]
+  hostedRooms      Room[]             @relation("RoomHost")
+  roomParticipants RoomParticipant[]
+  groupMemberships GroupMember[]
+  creditEntries    KnowledgeCreditEntry[]
+  notifications    Notification[]
+  givenFeedback    SessionFeedback[]  @relation("GivenFeedback")
+  receivedFeedback SessionFeedback[]  @relation("ReceivedFeedback")
+}
+
+model LearningDNATrait {
+  id             String   @id @default(uuid())
+  userId         String
+  trait          String
+  confidence     Float    // 0-1
+  category       String   // "teaching" | "learning" | "social"
+  isVisible      Boolean  @default(true)
+  isSelfAssessed Boolean  @default(false)
+  createdAt      DateTime @default(now())
+
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, trait])
+}
+
+model Room {
+  id                  String   @id @default(uuid())
+  title               String
+  description         String?
+  type                String   // RoomType (e.g. "quick-help", "study")
+  hostId              String
+  isActive            Boolean  @default(true)
+  maxParticipants     Int      @default(10)
+  currentParticipants Int      @default(1)
+  tags                String[]
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  host                User              @relation("RoomHost", fields: [hostId], references: [id])
+  participants        RoomParticipant[]
+}
+
+model RoomParticipant {
   id        String   @id @default(uuid())
-  email     String   @unique
-  name      String?
+  roomId    String
+  userId    String
+  joinedAt  DateTime @default(now())
+  leftAt    DateTime?
+
+  room      Room     @relation(fields: [roomId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([roomId, userId])
+}
+
+model Group {
+  id           String   @id @default(uuid())
+  type         String   // "squad" | "community"
+  name         String
+  description  String
+  tags         String[]
+  membersCount Int      @default(1)
+  isPrivate    Boolean  @default(false)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  // Specific to Squads
+  streakDays   Int      @default(0)
+  
+  // Specific to Communities
+  campus       String?
+  rules        String[]
+
+  members      GroupMember[]
+  squadGoals   SquadGoal[]
+}
+
+model GroupMember {
+  id        String   @id @default(uuid())
+  groupId   String
+  userId    String
+  role      String   @default("member") // "admin" | "member"
+  joinedAt  DateTime @default(now())
+
+  group     Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([groupId, userId])
+}
+
+model SquadGoal {
+  id           String   @id @default(uuid())
+  groupId      String
+  title        String
+  targetHours  Int
+  currentHours Int      @default(0)
+  deadline     DateTime
+  isCompleted  Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  group        Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+}
+
+model KnowledgeCreditEntry {
+  id        String   @id @default(uuid())
+  userId    String
+  amount    Int
+  reason    String
+  category  String   // "teaching" | "helping" | "collaboration" | "feedback" | "consistency"
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String
+  title     String
+  body      String
+  isRead    Boolean  @default(false)
+  href      String?
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model SessionFeedback {
+  id                   String   @id @default(uuid())
+  giverId              String
+  receiverId           String
+  clarity              Int
+  helpfulness          Int
+  patience             Int
+  accuracy             Int
+  beginnerFriendliness Int
+  communicationQuality Int
+  conceptUnderstanding Int
+  overallSatisfaction  Int
+  comment              String?
+  isFlagged            Boolean  @default(false)
+  createdAt            DateTime @default(now())
+
+  giver                User     @relation("GivenFeedback", fields: [giverId], references: [id])
+  receiver             User     @relation("ReceivedFeedback", fields: [receiverId], references: [id])
 }

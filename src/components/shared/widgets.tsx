@@ -2,7 +2,7 @@
 
 import { cn } from "@/lib/utils";
 import { type LucideIcon, ArrowRight, MoreHorizontal } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { Button, buttonVariants } from "@/components/ui/button";
 import { SurfaceCard } from "@/components/shared/cards";
 
 /* ═══════════════════════════════════════════════════════════
@@ -11,12 +11,14 @@ import { SurfaceCard } from "@/components/shared/cards";
    Modular widget system for the dashboard grid.
    ═══════════════════════════════════════════════════════════ */
 
+import Link from "next/link";
+
 /* ─── Widget Container ─── */
 interface WidgetProps {
   title: string;
   description?: string;
   icon?: LucideIcon;
-  action?: { label: string; onClick: () => void };
+  action?: { label: string; onClick?: () => void; href?: string };
   moreMenu?: boolean;
   children: React.ReactNode;
   className?: string;
@@ -60,15 +62,25 @@ export function Widget({
 
         <div className="flex items-center gap-1">
           {action && (
-            <Button
-              variant="ghost"
-              size="xs"
-              onClick={action.onClick}
-              className="text-muted-foreground hover:text-primary text-[11px] gap-1"
-            >
-              {action.label}
-              <ArrowRight className="w-3 h-3" />
-            </Button>
+            action.href ? (
+              <Link 
+                href={action.href}
+                className={buttonVariants({ variant: "ghost", size: "xs", className: "text-muted-foreground hover:text-primary text-[11px] gap-1" })}
+              >
+                {action.label}
+                <ArrowRight className="w-3 h-3" />
+              </Link>
+            ) : (
+              <Button
+                variant="ghost"
+                size="xs"
+                onClick={action.onClick}
+                className="text-muted-foreground hover:text-primary text-[11px] gap-1"
+              >
+                {action.label}
+                <ArrowRight className="w-3 h-3" />
+              </Button>
+            )
           )}
           {moreMenu && (
             <Button
