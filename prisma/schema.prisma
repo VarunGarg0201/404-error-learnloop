@@ -58,7 +58,8 @@ model LearningDNATrait {
 
   user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
-  @@unique([userId, trait])
+  @@index([userId])
+  @@index([trait])
 }
 
 model Room {
@@ -76,6 +77,9 @@ model Room {
 
   host                User              @relation("RoomHost", fields: [hostId], references: [id])
   participants        RoomParticipant[]
+
+  @@index([isActive])
+  @@index([hostId])
 }
 
 model RoomParticipant {
@@ -89,6 +93,7 @@ model RoomParticipant {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([roomId, userId])
+  @@index([userId])
 }
 
 model Group {
@@ -111,6 +116,9 @@ model Group {
 
   members      GroupMember[]
   squadGoals   SquadGoal[]
+
+  @@index([type])
+  @@index([campus])
 }
 
 model GroupMember {
@@ -124,6 +132,7 @@ model GroupMember {
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([groupId, userId])
+  @@index([userId])
 }
 
 model SquadGoal {
@@ -137,6 +146,8 @@ model SquadGoal {
   createdAt    DateTime @default(now())
 
   group        Group    @relation(fields: [groupId], references: [id], onDelete: Cascade)
+
+  @@index([groupId])
 }
 
 model KnowledgeCreditEntry {
@@ -148,6 +159,9 @@ model KnowledgeCreditEntry {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([category])
 }
 
 model Notification {
@@ -161,6 +175,9 @@ model Notification {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, isRead])
+  @@index([createdAt])
 }
 
 model SessionFeedback {
@@ -181,6 +198,8 @@ model SessionFeedback {
 
   giver                User     @relation("GivenFeedback", fields: [giverId], references: [id])
   receiver             User     @relation("ReceivedFeedback", fields: [receiverId], references: [id])
+
+  @@index([receiverId])
 }
 
 model HelpRequest {
@@ -193,6 +212,9 @@ model HelpRequest {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([status])
+  @@index([userId])
 }
 
 model Activity {
@@ -204,6 +226,9 @@ model Activity {
   createdAt DateTime @default(now())
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 model MicroPost {
@@ -219,4 +244,8 @@ model MicroPost {
   updatedAt DateTime @updatedAt
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
 }

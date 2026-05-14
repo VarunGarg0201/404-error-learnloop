@@ -8,9 +8,9 @@ import { StatusBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Widget } from "@/components/shared/widgets";
 import { Button } from "@/components/ui/button";
-import { getPotentialMatches, sendMatchRequest } from "@/features/dashboard/actions";
-import { findMatches } from "@/lib/ai/matching";
-import type { MatchResult, MatchableProfile, DNATraitScore } from "@/lib/ai/types";
+import { getTopServerMatches } from "@/features/dashboard/actions/matching";
+import { sendMatchRequest } from "@/features/dashboard/actions";
+import type { MatchResult } from "@/lib/ai/types";
 import {
   Sparkles,
   ArrowRight,
@@ -25,12 +25,7 @@ import Link from "next/link";
 /* ═══════════════════════════════════════════════════════════
    AI Matches Widget — Dashboard mini-view
    ─────────────────────────────────────────────────────────
-   Shows the top 3 AI-powered peer matches based on:
-   - Skills complementarity (teach/learn)
-   - Goals alignment
-   - Learning DNA compatibility
-   - Availability overlap
-   - Energy mode, reputation, behavior
+   Optimized to run matching engine on the server.
    ═══════════════════════════════════════════════════════════ */
 
 function MatchMiniCard({ match }: { match: MatchResult }) {
@@ -128,178 +123,15 @@ function MatchMiniCard({ match }: { match: MatchResult }) {
   );
 }
 
-/**
- * Maps a database user (with includes) to a full MatchableProfile.
- * Uses real DNA traits, feedback-derived ratings, and credit data.
- */
-function mapToProfile(dbUser: any): MatchableProfile {
-  // Extract DNA traits
-  const dnaTraits: DNATraitScore[] = (dbUser.dnaTraits || []).map((t: any) => ({
-    trait: t.trait,
-    score: t.confidence,
-    category: t.category as "teaching" | "learning" | "social",
-  }));
-
-  // Compute avg rating from feedback
-  const feedback = dbUser.receivedFeedback || [];
-  const avgRating =
-    feedback.length > 0
-      ? feedback.reduce(
-          (sum: number, f: any) => sum + f.overallSatisfaction,
-          0
-        ) / feedback.length / 2 // scale 1-10 → 1-5
-      : 3.5; // neutral default
-
-  // Derive total sessions from room participations
-  const totalSessions = (dbUser.roomParticipants || []).length;
-
-  // Use real data if available, otherwise fall back to heuristics
-  const skillsToTeach = dbUser.skillsToTeach?.length > 0 
-    ? dbUser.skillsToTeach 
-    : inferSkills(dbUser, "teach");
-    
-  const skillsToLearn = dbUser.skillsToLearn?.length > 0 
-    ? dbUser.skillsToLearn 
-    : inferSkills(dbUser, "learn");
-
-  const goals = dbUser.goals?.length > 0 
-    ? dbUser.goals 
-    : inferGoals(dbUser);
-
-  const learningStyle = dbUser.learningStyle || inferLearningStyle(dbUser);
-  const availability = dbUser.availability?.length > 0 
-    ? dbUser.availability 
-    : ["Evening", "Night"];
-
-  return {
-    id: dbUser.id,
-    displayName: dbUser.displayName,
-    username: dbUser.username,
-    avatarUrl: dbUser.avatarUrl,
-    campus: dbUser.campus,
-    stream: dbUser.stream,
-    year: dbUser.year,
-    bio: dbUser.bio,
-    skillsToTeach,
-    skillsToLearn,
-    goals,
-    learningStyle,
-    availability,
-    preferredLanguage: dbUser.preferredLanguage || "English",
-    dnaTraits,
-    knowledgeCredits: dbUser.knowledgeCredits || 0,
-    trustScore: Math.min(dbUser.trustScore / 20, 5), // scale 0-100 → 0-5
-    totalSessions,
-    avgRating,
-    streak: Math.min(totalSessions, 30), // Approximation
-    energyMode: "focused",
-    isOnline: true, // In production, check presence
-    lastActiveAt: dbUser.updatedAt?.toISOString() || new Date().toISOString(),
-  };
-}
-
-/** Infer skills from stream + bio as a heuristic */
-function inferSkills(user: any, direction: "teach" | "learn"): string[] {
-  const stream = (user.stream || "").toLowerCase();
-  const bio = (user.bio || "").toLowerCase();
-  const combined = `${stream} ${bio}`;
-
-  const skillBank: Record<string, string[]> = {
-    "react": ["React"],
-    "next": ["Next.js"],
-    "typescript": ["TypeScript"],
-    "javascript": ["JavaScript"],
-    "python": ["Python"],
-    "machine learning": ["Machine Learning"],
-    "ml": ["Machine Learning"],
-    "ai": ["Artificial Intelligence"],
-    "data science": ["Data Science"],
-    "dsa": ["Data Structures"],
-    "algorithm": ["Algorithms"],
-    "docker": ["Docker"],
-    "rust": ["Rust"],
-    "node": ["Node.js"],
-    "java": ["Java"],
-    "c++": ["C++"],
-    "sql": ["SQL"],
-    "css": ["CSS"],
-    "html": ["HTML"],
-    "frontend": ["Frontend Dev"],
-    "backend": ["Backend Dev"],
-    "fullstack": ["Full-Stack Dev"],
-    "full-stack": ["Full-Stack Dev"],
-    "cloud": ["Cloud Computing"],
-    "aws": ["AWS"],
-    "system design": ["System Design"],
-    "competitive": ["Competitive Programming"],
-  };
-
-  const found: string[] = [];
-  for (const [keyword, skills] of Object.entries(skillBank)) {
-    if (combined.includes(keyword)) {
-      found.push(...skills);
-    }
-  }
-
-  // If nothing found, provide generic defaults based on stream
-  if (found.length === 0) {
-    if (stream.includes("computer") || stream.includes("cs")) {
-      return direction === "teach"
-        ? ["Programming", "Problem Solving"]
-        : ["Advanced Topics", "System Design"];
-    }
-    return direction === "teach" ? ["General Studies"] : ["New Skills"];
-  }
-
-  // Split between teach/learn — first half teach, second half learn
-  const mid = Math.ceil(found.length / 2);
-  const unique = [...new Set(found)];
-  return direction === "teach" ? unique.slice(0, mid) : unique.slice(mid);
-}
-
-function inferGoals(user: any): string[] {
-  const goals = ["Learn new skills"];
-  if ((user.bio || "").toLowerCase().includes("placement") || (user.bio || "").toLowerCase().includes("job"))
-    goals.push("Prepare for placements");
-  if ((user.bio || "").toLowerCase().includes("project") || (user.bio || "").toLowerCase().includes("build"))
-    goals.push("Build projects together");
-  if ((user.bio || "").toLowerCase().includes("teach") || (user.bio || "").toLowerCase().includes("mentor"))
-    goals.push("Help others learn");
-  if (goals.length === 1) goals.push("Master a new skill", "Grow my network");
-  return goals;
-}
-
-function inferLearningStyle(user: any): string {
-  const bio = (user.bio || "").toLowerCase();
-  if (bio.includes("visual") || bio.includes("diagram")) return "Visual";
-  if (bio.includes("hands-on") || bio.includes("build") || bio.includes("code")) return "Hands-on";
-  if (bio.includes("read") || bio.includes("write") || bio.includes("note")) return "Reading/Writing";
-  return "Hands-on"; // Sensible default for tech students
-}
-
 export function AIMatchesWidget({ className }: { className?: string }) {
-  const router = useRouter();
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [loading, setLoading] = useState(true);
-  const [refreshing, setRefreshing] = useState(false);
 
   async function loadMatches() {
     try {
-      const res = await getPotentialMatches();
+      const res = await getTopServerMatches(3);
       if (res.data) {
-        const { currentUser, candidates } = res.data;
-        
-        if (candidates.length > 0) {
-          const profile = mapToProfile(currentUser);
-          const candidateProfiles = candidates.map(mapToProfile);
-
-          const results = await findMatches(profile, candidateProfiles, {
-            userId: profile.id,
-            limit: 3,
-            minScore: 10,
-          });
-          setMatches(results);
-        }
+        setMatches(res.data);
       }
     } catch (e) {
       console.error("Match error", e);
