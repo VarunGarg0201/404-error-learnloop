@@ -79,7 +79,7 @@ export function RoomLayout({ roomId }: RoomLayoutProps) {
 
   const handleLeave = () => {
     // If other participants exist, offer to rate
-    const others = participants.filter(p => p.id !== (user?.id || "guest"));
+    const others = Array.from(participants.values()).filter(p => p.id !== (user?.id || "guest"));
     if (others.length > 0) {
       // Pick the first other participant as feedback target
       setFeedbackTarget({ id: others[0].id, name: others[0].displayName });

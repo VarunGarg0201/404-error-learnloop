@@ -133,7 +133,7 @@ export function OnboardingFlow() {
       const res = await completeOnboarding({
         displayName: data.displayName,
         username: data.username,
-        avatarUrl: data.avatarUrl,
+        avatarUrl: data.avatarUrl ?? undefined,
         campus: data.school, // Mapping school -> campus
         stream: data.stream,
         year: data.year,
