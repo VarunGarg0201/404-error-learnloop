@@ -1,6 +1,8 @@
 import { getLiveRooms } from "@/features/rooms/actions";
 import { RoomsClient } from "./rooms-client";
 
+export const dynamic = "force-dynamic";
+
 export default async function RoomsPage() {
   const response = await getLiveRooms();
   const rooms = response.data || [];
