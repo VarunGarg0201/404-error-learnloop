@@ -34,6 +34,7 @@ model User {
   receivedFeedback SessionFeedback[]  @relation("ReceivedFeedback")
   helpRequests     HelpRequest[]
   activities       Activity[]
+  microPosts       MicroPost[]
 }
 
 model LearningDNATrait {
@@ -192,6 +193,21 @@ model Activity {
   label     String
   detail    String
   createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model MicroPost {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // "lesson" | "explanation" | "recap" | "code" | "note"
+  title     String
+  content   String
+  tags      String[]
+  likes     Int      @default(0)
+  isAnonymous Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

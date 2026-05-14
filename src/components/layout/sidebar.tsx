@@ -13,6 +13,8 @@ import {
   Settings,
   ChevronLeft,
   Zap,
+  Coins,
+  GraduationCap,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -30,6 +32,8 @@ const navItems = [
   { label: "Rooms", href: "/rooms", icon: MessageSquare },
   { label: "Squads", href: "/squads", icon: Users },
   { label: "Communities", href: "/communities", icon: BookOpen },
+  { label: "Teach", href: "/teach", icon: GraduationCap },
+  { label: "Credits", href: "/credits", icon: Coins },
 ];
 
 const bottomNavItems = [
