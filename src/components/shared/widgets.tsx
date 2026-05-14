@@ -190,25 +190,26 @@ export function QuickAction({
     <button
       onClick={onClick}
       className={cn(
-        "flex items-center gap-3 w-full px-3 py-2.5 rounded-lg text-left",
-        "transition-all duration-150 ease-out",
-        "hover:bg-accent/60 active:scale-[0.99]",
-        "group",
+        "flex items-center gap-3 w-full px-4 py-3.5 text-left bg-card",
+        "transition-all duration-200 ease-out",
+        "hover:bg-accent/50 active:scale-[0.99]",
+        "group focus-visible:z-10",
         className
       )}
     >
-      <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-primary/10 shrink-0 group-hover:bg-primary/15 transition-colors">
+      <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/8 shrink-0 group-hover:bg-primary/15 group-hover:scale-105 transition-all duration-200">
         <Icon className="w-4 h-4 text-primary" />
       </div>
-      <div className="min-w-0">
-        <p className="text-sm font-medium">{label}</p>
+      <div className="min-w-0 flex-1">
+        <p className="text-sm font-medium group-hover:text-foreground transition-colors">{label}</p>
         {description && (
-          <p className="text-[11px] text-muted-foreground truncate">
+          <p className="text-[11px] text-muted-foreground truncate leading-tight mt-0.5">
             {description}
           </p>
         )}
       </div>
-      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
+      <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/50 ml-auto opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
     </button>
   );
 }
+

@@ -10,8 +10,6 @@ import {
   MessageSquare,
   Users,
   HelpCircle,
-  BookOpen,
-  Zap,
 } from "lucide-react";
 
 import { StatsRow, ContributionStatsWidget, GrowthWidget } from "@/features/dashboard/widgets/stats";
@@ -31,33 +29,41 @@ export default function DashboardPage() {
   const greeting = getGreeting();
 
   return (
-    <div className="space-y-6 stagger-children">
-      {/* ─── Welcome Header ─── */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <UserAvatar
-            name={displayName}
-            src={user?.avatarUrl}
-            size="lg"
-            showOnline
-          />
-          <div>
-            <h1 className="text-xl font-bold tracking-tight">
-              {greeting}, {displayName.split(" ")[0]}! 👋
-            </h1>
-            <p className="text-sm text-muted-foreground">
-              Here&apos;s what&apos;s happening in your learning ecosystem.
-            </p>
+    <div className="space-y-8 stagger-children">
+
+      {/* ─── Welcome Banner ─── */}
+      <div className="relative overflow-hidden rounded-2xl border border-border/40 bg-card p-6 sm:p-8">
+        {/* Ambient gradient blob */}
+        <div className="absolute -top-24 -right-24 w-64 h-64 bg-primary/8 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-16 -left-16 w-48 h-48 bg-info/6 rounded-full blur-3xl pointer-events-none" />
+
+        <div className="relative flex flex-col sm:flex-row sm:items-center sm:justify-between gap-5">
+          <div className="flex items-center gap-4">
+            <UserAvatar
+              name={displayName}
+              src={user?.avatarUrl}
+              size="lg"
+              showOnline
+            />
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold tracking-tight">
+                {greeting},{" "}
+                <span className="text-gradient">{displayName.split(" ")[0]}</span>! 👋
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1 leading-relaxed">
+                Here&apos;s what&apos;s happening in your learning ecosystem.
+              </p>
+            </div>
           </div>
-        </div>
-        <div className="flex items-center gap-2">
-          <KCBadge amount={user?.knowledgeCredits ?? 142} />
+          <div className="flex items-center gap-3 shrink-0">
+            <KCBadge amount={user?.knowledgeCredits ?? 142} />
+          </div>
         </div>
       </div>
 
       {/* ─── Quick Actions ─── */}
       <SurfaceCard padding="sm" className="overflow-hidden">
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-0.5">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-px bg-border/30">
           <QuickAction
             icon={HelpCircle}
             label="Ask for help"
@@ -85,11 +91,11 @@ export default function DashboardPage() {
       <StatsRow />
 
       {/* ─── Main Content Grid ─── */}
-      <div className="grid gap-4 lg:grid-cols-12">
+      <div className="grid gap-5 lg:grid-cols-12">
         {/* Left Column — Primary content (8 cols) */}
-        <div className="lg:col-span-8 space-y-4">
+        <div className="lg:col-span-8 space-y-5">
           <AIMatchesWidget />
-          <div className="grid gap-4 sm:grid-cols-2">
+          <div className="grid gap-5 sm:grid-cols-2">
             <HelpRequestsWidget />
             <StudyRoomsWidget />
           </div>
@@ -97,7 +103,7 @@ export default function DashboardPage() {
         </div>
 
         {/* Right Column — Secondary content (4 cols) */}
-        <div className="lg:col-span-4 space-y-4">
+        <div className="lg:col-span-4 space-y-5">
           <GrowthWidget />
           <ContributionStatsWidget />
           <NotificationsWidget />
@@ -116,3 +122,4 @@ function getGreeting(): string {
   if (hour < 17) return "Good afternoon";
   return "Good evening";
 }
+

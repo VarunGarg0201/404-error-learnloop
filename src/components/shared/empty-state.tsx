@@ -19,16 +19,21 @@ export function EmptyState({
   return (
     <div
       className={cn(
-        "flex flex-col items-center justify-center py-16 px-4 text-center",
+        "flex flex-col items-center justify-center py-20 px-6 text-center",
         className
       )}
     >
-      <div className="flex items-center justify-center w-12 h-12 rounded-xl bg-muted/60 mb-4">
-        <Icon className="w-5 h-5 text-muted-foreground" />
+      {/* Breathing icon with gradient ring */}
+      <div className="relative mb-6">
+        <div className="absolute inset-0 rounded-2xl bg-primary/5 animate-breathe blur-xl" />
+        <div className="relative flex items-center justify-center w-14 h-14 rounded-2xl bg-muted/60 border border-border/50">
+          <Icon className="w-6 h-6 text-muted-foreground" />
+        </div>
       </div>
-      <h3 className="text-sm font-semibold mb-1">{title}</h3>
-      <p className="text-xs text-muted-foreground max-w-sm mb-4">{description}</p>
-      {action && <div>{action}</div>}
+      <h3 className="text-base font-semibold mb-2 tracking-tight">{title}</h3>
+      <p className="text-sm text-muted-foreground max-w-xs mb-6 leading-relaxed">{description}</p>
+      {action && <div className="animate-fade-in">{action}</div>}
     </div>
   );
 }
+
