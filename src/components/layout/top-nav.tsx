@@ -1,12 +1,13 @@
 "use client";
 
 import { Bell, Search, Sparkles } from "lucide-react";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { useUIStore } from "@/store/ui-store";
 import { useUserStore } from "@/store/user-store";
 import { signOut } from "@/features/auth/actions";
 import { Button } from "@/components/ui/button";
 import { UserAvatar } from "@/components/shared/user-avatar";
+import { NotificationBell } from "@/components/layout/notification-bell";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -36,7 +37,8 @@ interface TopNavProps {
 
 export function TopNav({ title }: TopNavProps) {
   const pathname = usePathname();
-  const { setAiPanelOpen } = useUIStore();
+  const router = useRouter();
+  const { setCommandPaletteOpen } = useUIStore();
   const { user } = useUserStore();
 
   const pageTitle = title || PAGE_TITLES[pathname] || "";
@@ -59,11 +61,12 @@ export function TopNav({ title }: TopNavProps) {
 
       {/* Right: Actions */}
       <div className="flex items-center gap-1">
-        {/* Search */}
+        {/* Search — opens Command Palette */}
         <Button
           variant="ghost"
           size="sm"
           className="h-8 px-2.5 text-muted-foreground hover:text-foreground"
+          onClick={() => setCommandPaletteOpen(true)}
         >
           <Search className="w-4 h-4" />
           <span className="hidden sm:inline ml-2 text-xs">Search</span>
@@ -72,25 +75,18 @@ export function TopNav({ title }: TopNavProps) {
           </kbd>
         </Button>
 
-        {/* AI Assistant */}
+        {/* AI Assistant — navigates to /assistant */}
         <Button
           variant="ghost"
           size="sm"
-          onClick={() => setAiPanelOpen(true)}
+          onClick={() => router.push("/assistant")}
           className="h-8 px-2.5 text-muted-foreground hover:text-primary"
         >
           <Sparkles className="w-4 h-4" />
         </Button>
 
-        {/* Notifications */}
-        <Button
-          variant="ghost"
-          size="sm"
-          className="h-8 px-2.5 text-muted-foreground hover:text-foreground relative"
-        >
-          <Bell className="w-4 h-4" />
-          <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 bg-primary rounded-full" />
-        </Button>
+        {/* Notifications — real dropdown */}
+        <NotificationBell />
 
         {/* User Avatar */}
         <DropdownMenu>
