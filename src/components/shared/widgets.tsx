@@ -188,6 +188,7 @@ interface QuickActionProps {
   label: string;
   description?: string;
   onClick?: () => void;
+  href?: string;
   className?: string;
 }
 
@@ -196,19 +197,11 @@ export function QuickAction({
   label,
   description,
   onClick,
+  href,
   className,
 }: QuickActionProps) {
-  return (
-    <button
-      onClick={onClick}
-      className={cn(
-        "flex items-center gap-3 w-full px-4 py-3.5 text-left bg-card",
-        "transition-all duration-200 ease-out",
-        "hover:bg-accent/50 active:scale-[0.99]",
-        "group focus-visible:z-10",
-        className
-      )}
-    >
+  const innerContent = (
+    <>
       <div className="flex items-center justify-center w-9 h-9 rounded-xl bg-primary/8 shrink-0 group-hover:bg-primary/15 group-hover:scale-105 transition-all duration-200">
         <Icon className="w-4 h-4 text-primary" />
       </div>
@@ -221,6 +214,28 @@ export function QuickAction({
         )}
       </div>
       <ArrowRight className="w-3.5 h-3.5 text-muted-foreground/50 ml-auto opacity-0 -translate-x-1 group-hover:opacity-100 group-hover:translate-x-0 transition-all duration-200" />
+    </>
+  );
+
+  const classes = cn(
+    "flex items-center gap-3 w-full px-4 py-3.5 text-left bg-card",
+    "transition-all duration-200 ease-out",
+    "hover:bg-accent/50 active:scale-[0.99]",
+    "group focus-visible:z-10 block",
+    className
+  );
+
+  if (href) {
+    return (
+      <Link href={href} onClick={onClick} className={classes}>
+        {innerContent}
+      </Link>
+    );
+  }
+
+  return (
+    <button onClick={onClick} className={classes}>
+      {innerContent}
     </button>
   );
 }

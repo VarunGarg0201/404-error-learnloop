@@ -1,65 +1,62 @@
-"use client";
-
-import { useState } from "react";
-import { GroupLayout, GroupChat, CommunityFeed } from "@/features/groups";
-import { MessageSquare, LayoutTemplate } from "lucide-react";
-import type { Group, GroupMember } from "@/types";
+import { joinGroup, getGroupById } from "@/features/groups/actions";
+import { EmptyState } from "@/components/shared/empty-state";
+import { Hash } from "lucide-react";
+import { buttonVariants } from "@/components/ui/button";
+import Link from "next/link";
+import { CommunityClient } from "./community-client";
 
 /* ═══════════════════════════════════════════════════════════
-   Community Detail Page
+   Dynamic Community Page
    ─────────────────────────────────────────────────────────
-   Dynamic route for /communities/[id]
+   Entry point for /communities/[id]
    ═══════════════════════════════════════════════════════════ */
 
-export default function CommunityPage({ params }: { params: { id: string } }) {
-  const [activeTab, setActiveTab] = useState("feed");
+interface CommunityPageProps {
+  params: Promise<{ id: string }>;
+}
 
-  // Mock Data for Phase 1
-  const mockCommunity: Group = {
-    id: params.id,
-    type: "community",
-    name: "MIT Computer Science",
-    description: "Official community hub for all CS majors at MIT. Join for study groups, announcements, and peer support.",
-    tags: ["Campus", "Computer Science", "Engineering"],
-    membersCount: 1240,
-    isPrivate: false,
-    createdAt: new Date().toISOString(),
-    campus: "MIT",
-  };
+export default async function CommunityPage({ params }: CommunityPageProps) {
+  const { id } = await params;
+  
+  // Attempt to join the community on page load
+  const joinRes = await joinGroup(id);
 
-  const mockMembers: GroupMember[] = [
-    { id: "m1", userId: "user_1", role: "admin", joinedAt: new Date().toISOString(), user: { id: "user_1", displayName: "Dr. Alan", avatarUrl: null } },
-    { id: "m2", userId: "user_2", role: "member", joinedAt: new Date().toISOString(), user: { id: "user_2", displayName: "Sarah J. (You)", avatarUrl: null } },
-    { id: "m3", userId: "user_3", role: "member", joinedAt: new Date().toISOString(), user: { id: "user_3", displayName: "Mike T.", avatarUrl: null } },
-  ];
-
-  const tabs = [
-    { id: "feed", label: "Announcements", icon: LayoutTemplate },
-    { id: "chat", label: "General Chat", icon: MessageSquare },
-  ];
-
-  return (
-    <GroupLayout
-      group={mockCommunity}
-      members={mockMembers}
-      currentUserRole="member"
-      activeTab={activeTab}
-      onTabChange={setActiveTab}
-      tabs={tabs}
-    >
-      <div className="max-w-4xl mx-auto h-full">
-        {activeTab === "feed" && (
-          <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <CommunityFeed />
-          </div>
-        )}
-        
-        {activeTab === "chat" && (
-          <div className="h-full animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <GroupChat groupId={mockCommunity.id} currentUserId="user_2" />
-          </div>
-        )}
+  if (!joinRes.success) {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <EmptyState
+          icon={Hash}
+          title="Cannot Join Community"
+          description={joinRes.error || "The community may be private or not exist."}
+          action={
+            <Link href="/communities" className={buttonVariants()}>
+              Back to Communities
+            </Link>
+          }
+        />
       </div>
-    </GroupLayout>
-  );
+    );
+  }
+
+  // Fetch full community data
+  const { data: community } = await getGroupById(id);
+
+  if (!community) {
+    return (
+      <div className="flex h-full items-center justify-center p-6">
+        <EmptyState
+          icon={Hash}
+          title="Community Not Found"
+          description="This community does not exist."
+          action={
+            <Link href="/communities" className={buttonVariants()}>
+              Back to Communities
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  return <CommunityClient community={community as any} />;
 }

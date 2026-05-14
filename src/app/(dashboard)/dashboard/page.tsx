@@ -81,21 +81,25 @@ export default function DashboardPage() {
             icon={HelpCircle}
             label="Ask for help"
             description="Get help from peers"
+            href="/rooms"
           />
           <QuickAction
             icon={MessageSquare}
             label="Create room"
             description="Start a study session"
+            href="/rooms/new"
           />
           <QuickAction
             icon={Sparkles}
             label="Find matches"
             description="AI-powered matching"
+            href="/dashboard"
           />
           <QuickAction
             icon={Users}
             label="Join squad"
             description="Find accountability"
+            href="/squads/new"
           />
         </div>
       </SurfaceCard>

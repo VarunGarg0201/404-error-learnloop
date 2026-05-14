@@ -98,3 +98,95 @@ export async function createGroup(data: {
     return { data: null, success: false, error: error.message };
   }
 }
+
+export async function getGroupById(groupId: string) {
+  try {
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+        squadGoals: true,
+      },
+    });
+
+    if (!group) {
+      return { data: null, success: false, error: "Group not found" };
+    }
+
+    return { data: group, success: true, error: null };
+  } catch (error: any) {
+    console.error("Failed to fetch group:", error);
+    return { data: null, success: false, error: error.message };
+  }
+}
+
+export async function joinGroup(groupId: string) {
+  try {
+    const user = await getCurrentUser();
+    if (!user) return { data: null, success: false, error: "Unauthorized" };
+
+    const dbUser = await prisma.user.findUnique({
+      where: { email: user.email },
+    });
+
+    if (!dbUser) return { data: null, success: false, error: "User not found" };
+
+    const group = await prisma.group.findUnique({
+      where: { id: groupId },
+    });
+
+    if (!group) return { data: null, success: false, error: "Group not found" };
+
+    // Check if already joined
+    const existing = await prisma.groupMember.findUnique({
+      where: {
+        groupId_userId: {
+          groupId,
+          userId: dbUser.id,
+        },
+      },
+    });
+
+    if (existing) {
+      return { data: group, success: true, error: null };
+    }
+
+    // Join
+    await prisma.$transaction([
+      prisma.groupMember.create({
+        data: {
+          groupId,
+          userId: dbUser.id,
+          role: "member",
+        },
+      }),
+      prisma.group.update({
+        where: { id: groupId },
+        data: {
+          membersCount: { increment: 1 },
+        },
+      }),
+    ]);
+
+    revalidatePath("/dashboard");
+    if (group.type === "squad") revalidatePath("/squads");
+    if (group.type === "community") revalidatePath("/communities");
+    revalidatePath(`/squads/${groupId}`);
+    revalidatePath(`/communities/${groupId}`);
+
+    return { data: group, success: true, error: null };
+  } catch (error: any) {
+    console.error("Failed to join group:", error);
+    return { data: null, success: false, error: error.message };
+  }
+}

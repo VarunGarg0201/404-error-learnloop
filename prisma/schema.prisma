@@ -32,6 +32,8 @@ model User {
   notifications    Notification[]
   givenFeedback    SessionFeedback[]  @relation("GivenFeedback")
   receivedFeedback SessionFeedback[]  @relation("ReceivedFeedback")
+  helpRequests     HelpRequest[]
+  activities       Activity[]
 }
 
 model LearningDNATrait {
@@ -169,4 +171,27 @@ model SessionFeedback {
 
   giver                User     @relation("GivenFeedback", fields: [giverId], references: [id])
   receiver             User     @relation("ReceivedFeedback", fields: [receiverId], references: [id])
+}
+
+model HelpRequest {
+  id        String   @id @default(uuid())
+  userId    String
+  topic     String
+  subject   String
+  urgency   String   @default("medium") // "low", "medium", "high"
+  status    String   @default("open") // "open", "closed"
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model Activity {
+  id        String   @id @default(uuid())
+  userId    String
+  type      String   // e.g. "joined_room", "completed_session", "earned_kc", "joined_squad", "received_review"
+  label     String
+  detail    String
+  createdAt DateTime @default(now())
+
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }

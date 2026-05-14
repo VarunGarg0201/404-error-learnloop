@@ -3,17 +3,17 @@
 import { useEffect, useState } from "react";
 import { cn } from "@/lib/utils";
 import { UserAvatar } from "@/components/shared/user-avatar";
-import { StatusBadge, SkillTag } from "@/components/shared/badges";
+import { StatusBadge } from "@/components/shared/badges";
 import { EmptyState } from "@/components/shared/empty-state";
 import { Widget } from "@/components/shared/widgets";
 import { Button } from "@/components/ui/button";
+import { getPotentialMatches } from "@/features/dashboard/actions";
 import { findMatches } from "@/lib/ai/matching";
-import { DEMO_USER, DEMO_CANDIDATES } from "@/lib/ai/demo-data";
-import type { MatchResult } from "@/lib/ai/types";
+import type { MatchResult, MatchableProfile } from "@/lib/ai/types";
 import {
   Sparkles,
   ArrowRight,
-  Percent,
+  Loader2,
 } from "lucide-react";
 
 /* ═══════════════════════════════════════════════════════════
@@ -33,7 +33,7 @@ function MatchMiniCard({ match }: { match: MatchResult }) {
         "transition-all duration-150 cursor-pointer group"
       )}
     >
-      <UserAvatar name={user.displayName} src={user.avatarUrl} size="md" showOnline={user.isOnline} />
+      <UserAvatar name={user.displayName} src={user.avatarUrl || undefined} size="md" showOnline={user.isOnline} />
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <p className="text-sm font-semibold truncate">{user.displayName}</p>
@@ -55,6 +55,34 @@ function MatchMiniCard({ match }: { match: MatchResult }) {
   );
 }
 
+function mapToProfile(dbUser: any): MatchableProfile {
+  return {
+    id: dbUser.id,
+    displayName: dbUser.displayName,
+    username: dbUser.username,
+    avatarUrl: dbUser.avatarUrl,
+    campus: dbUser.campus,
+    stream: dbUser.stream,
+    year: dbUser.year,
+    bio: dbUser.bio,
+    skillsToTeach: ["React", "JavaScript"], // Default for now
+    skillsToLearn: ["Next.js", "TypeScript"],
+    goals: ["Get a job", "Learn fast"],
+    learningStyle: "visual",
+    availability: ["evenings"],
+    preferredLanguage: "English",
+    dnaTraits: [],
+    knowledgeCredits: dbUser.knowledgeCredits || 0,
+    trustScore: dbUser.trustScore || 100,
+    totalSessions: 5,
+    avgRating: 4.5,
+    streak: 3,
+    energyMode: "focused",
+    isOnline: true,
+    lastActiveAt: new Date().toISOString(),
+  };
+}
+
 export function AIMatchesWidget({ className }: { className?: string }) {
   const [matches, setMatches] = useState<MatchResult[]>([]);
   const [loading, setLoading] = useState(true);
@@ -62,14 +90,25 @@ export function AIMatchesWidget({ className }: { className?: string }) {
   useEffect(() => {
     async function load() {
       try {
-        const results = await findMatches(DEMO_USER, DEMO_CANDIDATES, {
-          userId: DEMO_USER.id,
-          limit: 3,
-          minScore: 30,
-        });
-        setMatches(results);
-      } catch {
-        // Silently handle
+        const res = await getPotentialMatches();
+        if (res.data) {
+          const { currentUser, candidates } = res.data;
+          
+          if (candidates.length > 0) {
+            // Use the same matching logic but with real users
+            const profile = mapToProfile(currentUser);
+            const candidateProfiles = candidates.map(mapToProfile);
+
+            const results = await findMatches(profile, candidateProfiles, {
+              userId: profile.id,
+              limit: 3,
+              minScore: 10,
+            });
+            setMatches(results);
+          }
+        }
+      } catch (e) {
+        console.error("Match error", e);
       }
       setLoading(false);
     }
@@ -89,10 +128,8 @@ export function AIMatchesWidget({ className }: { className?: string }) {
       className={className}
     >
       {loading ? (
-        <div className="space-y-2">
-          {[1, 2, 3].map((i) => (
-            <div key={i} className="h-16 rounded-lg bg-muted/30 animate-pulse" />
-          ))}
+        <div className="flex justify-center items-center py-8 text-muted-foreground">
+          <Loader2 className="w-5 h-5 animate-spin" />
         </div>
       ) : matches.length > 0 ? (
         <div className="space-y-2">
