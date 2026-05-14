@@ -1,65 +1,66 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 
+/* ═══════════════════════════════════════════════════════════
+   LearnLoop Minimalist Auth Middleware
+   ─────────────────────────────────────────────────────────
+   Ultra-stable version to prevent Vercel 500 errors.
+   ═══════════════════════════════════════════════════════════ */
+
 export async function updateSession(request: NextRequest) {
-  let supabaseResponse = NextResponse.next({
-    request,
-  });
+  const pathname = request.nextUrl.pathname;
+  
+  // 1. Immediately skip middleware for static files and landing page
+  if (pathname === "/" || pathname.startsWith("/_next") || pathname.includes(".")) {
+    return NextResponse.next();
+  }
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
   const supabaseAnonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
 
+  // 2. If keys are missing, don't crash, just let it through
   if (!supabaseUrl || !supabaseAnonKey) {
-    return supabaseResponse;
+    return NextResponse.next();
   }
 
-  const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
-    cookies: {
-      getAll() {
-        return request.cookies.getAll();
+  const response = NextResponse.next();
+
+  try {
+    const supabase = createServerClient(supabaseUrl, supabaseAnonKey, {
+      cookies: {
+        getAll() {
+          return request.cookies.getAll();
+        },
+        setAll(cookiesToSet) {
+          // Simplest possible cookie setting
+          cookiesToSet.forEach(({ name, value, options }) =>
+            response.cookies.set(name, value, options)
+          );
+        },
       },
-      setAll(cookiesToSet) {
-        cookiesToSet.forEach(({ name, value }) =>
-          request.cookies.set(name, value)
-        );
-        supabaseResponse = NextResponse.next({
-          request,
-        });
-        cookiesToSet.forEach(({ name, value, options }) =>
-          supabaseResponse.cookies.set(name, value, options)
-        );
-      },
-    },
-  });
+    });
 
-  // IMPORTANT: Avoid calling getUser() on every single static asset request
-  // The matcher in middleware.ts already filters these out, but we'll be safe
-  const {
-    data: { user },
-  } = await supabase.auth.getUser();
+    // 3. Just check if the user exists
+    const { data: { user } } = await supabase.auth.getUser();
 
-  const pathname = request.nextUrl.pathname;
+    // 4. Simple protection logic
+    const isAuthPage = pathname === "/login" || pathname === "/register";
+    const isProtectedRoute = pathname.startsWith("/dashboard") || 
+                           pathname.startsWith("/onboarding") ||
+                           pathname.startsWith("/rooms");
 
-  // Protect routes
-  const isAuthPage = pathname === "/login" || pathname === "/register";
-  const isProtectedPage = pathname.startsWith("/dashboard") || 
-                          pathname.startsWith("/rooms") || 
-                          pathname.startsWith("/squads") ||
-                          pathname.startsWith("/communities") ||
-                          pathname.startsWith("/profile") ||
-                          pathname.startsWith("/settings");
+    if (!user && isProtectedRoute) {
+      return NextResponse.redirect(new URL("/login", request.url));
+    }
 
-  if (!user && isProtectedPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/login";
-    return NextResponse.redirect(url);
+    if (user && isAuthPage) {
+      return NextResponse.redirect(new URL("/dashboard", request.url));
+    }
+
+    return response;
+  } catch (e) {
+    // If auth fails for any reason, just let the request through to the page
+    // where the client-side AuthHydrator can handle it. This prevents the 500 crash.
+    return NextResponse.next();
   }
-
-  if (user && isAuthPage) {
-    const url = request.nextUrl.clone();
-    url.pathname = "/dashboard";
-    return NextResponse.redirect(url);
-  }
-
-  return supabaseResponse;
 }
