@@ -7,6 +7,7 @@ import { UserAvatar } from "@/components/shared/user-avatar";
 import { KCBadge } from "@/components/shared/badges";
 import { LoadingSpinner } from "@/components/shared/loading-states";
 import { useUserStore } from "@/store/user-store";
+import { HelpRequestModal } from "@/features/dashboard/components/help-request-modal";
 import {
   Sparkles,
   MessageSquare,
@@ -30,6 +31,7 @@ export default function DashboardPage() {
   const displayName = user?.displayName || "there";
   const [greeting, setGreeting] = useState("Welcome");
   const [mounted, setMounted] = useState(false);
+  const [helpModalOpen, setHelpModalOpen] = useState(false);
 
   // Avoid hydration mismatch — greeting depends on client time
   useEffect(() => {
@@ -81,7 +83,7 @@ export default function DashboardPage() {
             icon={HelpCircle}
             label="Ask for help"
             description="Get help from peers"
-            href="/rooms"
+            onClick={() => setHelpModalOpen(true)}
           />
           <QuickAction
             icon={MessageSquare}
@@ -93,16 +95,17 @@ export default function DashboardPage() {
             icon={Sparkles}
             label="Find matches"
             description="AI-powered matching"
-            href="/dashboard"
+            href="/discover"
           />
           <QuickAction
             icon={Users}
             label="Join squad"
             description="Find accountability"
-            href="/squads/new"
+            href="/squads"
           />
         </div>
       </SurfaceCard>
+      <HelpRequestModal isOpen={helpModalOpen} onOpenChange={setHelpModalOpen} />
 
       {/* ─── Stats Row ─── */}
       <StatsRow />
