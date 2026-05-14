@@ -33,7 +33,7 @@ export function SquadClient({ squad }: { squad: any }) {
       <div className="max-w-4xl mx-auto h-full">
         {activeTab === "goals" && (
           <div className="animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <SquadAccountability goals={goals} streakDays={squad.streakDays || 0} />
+            <SquadAccountability groupId={squad.id} goals={goals} streakDays={squad.streakDays || 0} />
           </div>
         )}
         

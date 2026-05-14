@@ -4,8 +4,9 @@ import { useState } from "react";
 import { SurfaceCard } from "@/components/shared/cards";
 import { Button } from "@/components/ui/button";
 import { InputField } from "@/components/shared/inputs";
-import { Target, Flame, CheckCircle2, Clock, Plus } from "lucide-react";
+import { Target, Flame, CheckCircle2, Clock, Plus, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { addSquadGoal, logGoalProgress } from "../actions/goals";
 import type { SquadGoal } from "@/types";
 
 /* ═══════════════════════════════════════════════════════════
@@ -15,45 +16,54 @@ import type { SquadGoal } from "@/types";
    ═══════════════════════════════════════════════════════════ */
 
 interface SquadAccountabilityProps {
+  groupId: string;
   goals: SquadGoal[];
   streakDays: number;
 }
 
-export function SquadAccountability({ goals: initialGoals, streakDays }: SquadAccountabilityProps) {
+export function SquadAccountability({ groupId, goals: initialGoals, streakDays }: SquadAccountabilityProps) {
   const [goals, setGoals] = useState<SquadGoal[]>(initialGoals);
   const [isAdding, setIsAdding] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newTarget, setNewTarget] = useState("");
+  const [loading, setLoading] = useState<string | null>(null);
+  const [submitting, setSubmitting] = useState(false);
 
-  const handleAddGoal = (e: React.FormEvent) => {
+  const handleAddGoal = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!newTitle.trim() || !newTarget) return;
+    if (!newTitle.trim() || !newTarget || submitting) return;
 
-    const goal: SquadGoal = {
-      id: crypto.randomUUID(),
-      title: newTitle,
+    setSubmitting(true);
+    const deadline = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000);
+    
+    const res = await addSquadGoal(groupId, {
+      title: newTitle.trim(),
       targetHours: Number(newTarget),
-      currentHours: 0,
-      deadline: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(), // +7 days
-      isCompleted: false,
-    };
+      deadline,
+    });
 
-    setGoals([goal, ...goals]);
-    setNewTitle("");
-    setNewTarget("");
-    setIsAdding(false);
+    if (res.success && res.data) {
+      setGoals([res.data as any, ...goals]);
+      setNewTitle("");
+      setNewTarget("");
+      setIsAdding(false);
+    }
+    setSubmitting(false);
   };
 
-  const handleLogHours = (id: string, hoursToAdd: number) => {
-    setGoals(prev => prev.map(g => {
-      if (g.id !== id) return g;
-      const newCurrent = g.currentHours + hoursToAdd;
-      return {
-        ...g,
-        currentHours: newCurrent,
-        isCompleted: newCurrent >= g.targetHours,
-      };
-    }));
+  const handleLogHours = async (id: string, hoursToAdd: number) => {
+    if (loading) return;
+    setLoading(id);
+
+    const res = await logGoalProgress(groupId, id, hoursToAdd);
+
+    if (res.success && res.data) {
+      setGoals(prev => prev.map(g => {
+        if (g.id !== id) return g;
+        return res.data as any;
+      }));
+    }
+    setLoading(null);
   };
 
   return (
@@ -117,8 +127,10 @@ export function SquadAccountability({ goals: initialGoals, streakDays }: SquadAc
               />
             </div>
             <div className="flex justify-end gap-2">
-              <Button type="button" variant="ghost" size="sm" onClick={() => setIsAdding(false)}>Cancel</Button>
-              <Button type="submit" size="sm">Add</Button>
+              <Button type="button" variant="ghost" size="sm" onClick={() => setIsAdding(false)} disabled={submitting}>Cancel</Button>
+              <Button type="submit" size="sm" disabled={submitting}>
+                {submitting ? <Loader2 className="w-4 h-4 animate-spin" /> : "Add"}
+              </Button>
             </div>
           </form>
         )}
@@ -151,8 +163,8 @@ export function SquadAccountability({ goals: initialGoals, streakDays }: SquadAc
                     </div>
                     
                     {!goal.isCompleted && (
-                      <Button size="sm" variant="secondary" onClick={() => handleLogHours(goal.id, 1)}>
-                        +1 Hour
+                      <Button size="sm" variant="secondary" onClick={() => handleLogHours(goal.id, 1)} disabled={loading === goal.id}>
+                        {loading === goal.id ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : "+1 Hour"}
                       </Button>
                     )}
                   </div>

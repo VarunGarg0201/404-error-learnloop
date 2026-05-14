@@ -153,9 +153,23 @@ function mapToProfile(dbUser: any): MatchableProfile {
   // Derive total sessions from room participations
   const totalSessions = (dbUser.roomParticipants || []).length;
 
-  // Infer skills from bio and stream (enhanced defaults)
-  const skillsToTeach = inferSkills(dbUser, "teach");
-  const skillsToLearn = inferSkills(dbUser, "learn");
+  // Use real data if available, otherwise fall back to heuristics
+  const skillsToTeach = dbUser.skillsToTeach?.length > 0 
+    ? dbUser.skillsToTeach 
+    : inferSkills(dbUser, "teach");
+    
+  const skillsToLearn = dbUser.skillsToLearn?.length > 0 
+    ? dbUser.skillsToLearn 
+    : inferSkills(dbUser, "learn");
+
+  const goals = dbUser.goals?.length > 0 
+    ? dbUser.goals 
+    : inferGoals(dbUser);
+
+  const learningStyle = dbUser.learningStyle || inferLearningStyle(dbUser);
+  const availability = dbUser.availability?.length > 0 
+    ? dbUser.availability 
+    : ["Evening", "Night"];
 
   return {
     id: dbUser.id,
@@ -168,10 +182,10 @@ function mapToProfile(dbUser: any): MatchableProfile {
     bio: dbUser.bio,
     skillsToTeach,
     skillsToLearn,
-    goals: inferGoals(dbUser),
-    learningStyle: inferLearningStyle(dbUser),
-    availability: ["Evening", "Night"], // Default; in production, fetch from user prefs
-    preferredLanguage: "English",
+    goals,
+    learningStyle,
+    availability,
+    preferredLanguage: dbUser.preferredLanguage || "English",
     dnaTraits,
     knowledgeCredits: dbUser.knowledgeCredits || 0,
     trustScore: Math.min(dbUser.trustScore / 20, 5), // scale 0-100 → 0-5

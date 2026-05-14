@@ -18,6 +18,7 @@ import {
   Loader2,
   GraduationCap,
   Coins,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -43,6 +44,7 @@ const STATIC_ITEMS: SearchItem[] = [
   { id: "settings", label: "Settings", description: "App preferences", icon: <Settings className="w-4 h-4" />, href: "/settings", category: "page" },
   { id: "assistant", label: "AI Assistant", description: "Get AI-powered help", icon: <Sparkles className="w-4 h-4" />, href: "/assistant", category: "page" },
   { id: "teach", label: "Teach", description: "Share micro lessons and earn KC", icon: <GraduationCap className="w-4 h-4" />, href: "/teach", category: "page" },
+  { id: "growth", label: "Growth Analytics", description: "Track streaks and milestones", icon: <TrendingUp className="w-4 h-4" />, href: "/growth", category: "page" },
   { id: "credits", label: "Knowledge Credits", description: "Your learning economy dashboard", icon: <Coins className="w-4 h-4" />, href: "/credits", category: "page" },
   { id: "create-room", label: "Create Room", description: "Start a new study session", icon: <Plus className="w-4 h-4" />, href: "/rooms/new", category: "action" },
   { id: "create-squad", label: "Create Squad", description: "Start an accountability group", icon: <Plus className="w-4 h-4" />, href: "/squads/new", category: "action" },

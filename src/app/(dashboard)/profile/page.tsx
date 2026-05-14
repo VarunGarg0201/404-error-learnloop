@@ -9,6 +9,7 @@ import { ReputationSection } from "@/features/profile/sections/reputation-sectio
 import { KnowledgeCreditsSection } from "@/features/profile/sections/knowledge-credits";
 import { ContributionSection } from "@/features/profile/sections/contribution-section";
 import { ActivityTimeline } from "@/features/profile/sections/activity-timeline";
+import { EditProfileModal } from "@/features/profile/components/edit-profile-modal";
 import { getFullProfile } from "@/features/profile/actions";
 import { Loader2 } from "lucide-react";
 
@@ -24,13 +25,15 @@ export default function ProfilePage() {
   const { user } = useUserStore();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [editOpen, setEditOpen] = useState(false);
 
-  useEffect(() => {
-    getFullProfile().then((res) => {
-      if (res.data) setProfile(res.data);
-      setLoading(false);
-    });
-  }, []);
+  async function loadProfile() {
+    const res = await getFullProfile();
+    if (res.data) setProfile(res.data);
+    setLoading(false);
+  }
+
+  useEffect(() => { loadProfile(); }, []);
 
   if (loading) {
     return (
@@ -62,6 +65,7 @@ export default function ProfilePage() {
         memberSince={memberSince}
         isOnline
         isOwnProfile
+        onEdit={() => setEditOpen(true)}
       />
 
       {/* ─── Two-column content grid ─── */}
@@ -80,6 +84,13 @@ export default function ProfilePage() {
           <ActivityTimeline />
         </div>
       </div>
+
+      {/* Edit Profile Modal */}
+      <EditProfileModal
+        isOpen={editOpen}
+        onOpenChange={setEditOpen}
+        onSaved={loadProfile}
+      />
     </div>
   );
 }

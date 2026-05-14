@@ -12,6 +12,7 @@ import { StepEducation } from "@/features/onboarding/steps/step-education";
 import { StepSkills } from "@/features/onboarding/steps/step-skills";
 import { StepGoals } from "@/features/onboarding/steps/step-goals";
 import { StepAvailability } from "@/features/onboarding/steps/step-availability";
+import { completeOnboarding } from "@/features/onboarding/actions";
 import { SurfaceCard } from "@/components/shared/cards";
 import { Button } from "@/components/ui/button";
 import { Zap, ArrowLeft, ArrowRight, Check, Sparkles } from "lucide-react";
@@ -117,27 +118,35 @@ export function OnboardingFlow() {
   const handleComplete = useCallback(async () => {
     setSubmitting(true);
     try {
+      // 1. Update Supabase Auth Metadata (for session/security)
       const supabase = createClient();
-      const { error } = await supabase.auth.updateUser({
+      await supabase.auth.updateUser({
         data: {
           display_name: data.displayName,
           username: data.username,
           avatar_url: data.avatarUrl,
-          school: data.school,
-          stream: data.stream,
-          year: data.year,
-          skills_to_teach: data.skillsToTeach,
-          skills_to_learn: data.skillsToLearn,
-          goals: data.goals,
-          learning_style: data.learningStyle,
-          availability: data.availability,
-          preferred_language: data.preferredLanguage,
           is_onboarded: true,
         },
       });
 
-      if (error) {
-        console.error("Onboarding save error:", error);
+      // 2. Sync to Database (for matching engine and profiles)
+      const res = await completeOnboarding({
+        displayName: data.displayName,
+        username: data.username,
+        avatarUrl: data.avatarUrl,
+        campus: data.school, // Mapping school -> campus
+        stream: data.stream,
+        year: data.year,
+        skillsToTeach: data.skillsToTeach,
+        skillsToLearn: data.skillsToLearn,
+        goals: data.goals,
+        learningStyle: data.learningStyle,
+        availability: data.availability,
+        preferredLanguage: data.preferredLanguage,
+      });
+
+      if (!res.success) {
+        console.error("Onboarding save error:", res.error);
         setSubmitting(false);
         return;
       }

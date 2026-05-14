@@ -12,6 +12,7 @@ import { LiveChat } from "./live-chat";
 import { CollaborativeNotes } from "./collaborative-notes";
 import { SessionTimer } from "./session-timer";
 import { RoomControls } from "./room-controls";
+import { FeedbackModal } from "@/features/dashboard/components/feedback-modal";
 import { Button } from "@/components/ui/button";
 import { PanelRightClose, PanelRightOpen, Users, FileText } from "lucide-react";
 
@@ -41,9 +42,11 @@ export function RoomLayout({ roomId }: RoomLayoutProps) {
     role: "participant", // In a real app, query DB to see if they are the host
   });
 
-  const { isConnected, localParticipant } = useRoomStore();
+  const { isConnected, localParticipant, participants } = useRoomStore();
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [activeTab, setActiveTab] = useState<SidebarTab>("chat");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
+  const [feedbackTarget, setFeedbackTarget] = useState<{ id: string; name: string } | null>(null);
 
   // Control Handlers
   const handleToggleMic = () => {
@@ -75,7 +78,15 @@ export function RoomLayout({ roomId }: RoomLayoutProps) {
   };
 
   const handleLeave = () => {
-    router.push("/dashboard");
+    // If other participants exist, offer to rate
+    const others = participants.filter(p => p.id !== (user?.id || "guest"));
+    if (others.length > 0) {
+      // Pick the first other participant as feedback target
+      setFeedbackTarget({ id: others[0].id, name: others[0].displayName });
+      setFeedbackOpen(true);
+    } else {
+      router.push("/dashboard");
+    }
   };
 
   const handleTimerAction = (action: "start" | "pause" | "reset", newDuration?: number) => {
@@ -220,7 +231,19 @@ export function RoomLayout({ roomId }: RoomLayoutProps) {
           )}
         </div>
       </div>
-      
+
+      {/* Feedback Modal */}
+      {feedbackTarget && (
+        <FeedbackModal
+          isOpen={feedbackOpen}
+          onOpenChange={(open) => {
+            setFeedbackOpen(open);
+            if (!open) router.push("/dashboard");
+          }}
+          receiverId={feedbackTarget.id}
+          receiverName={feedbackTarget.name}
+        />
+      )}
     </div>
   );
 }

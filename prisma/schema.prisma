@@ -20,6 +20,15 @@ model User {
   knowledgeCredits Int      @default(0)
   trustScore       Int      @default(100)
   isOnboarded      Boolean  @default(false)
+  
+  // New fields for AI matching
+  skillsToTeach    String[] @default([])
+  skillsToLearn    String[] @default([])
+  goals            String[] @default([])
+  learningStyle    String   @default("visual")
+  availability     String[] @default([])
+  preferredLanguage String  @default("English")
+
   createdAt        DateTime @default(now())
   updatedAt        DateTime @updatedAt
 

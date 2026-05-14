@@ -15,6 +15,7 @@ import {
   Zap,
   Coins,
   GraduationCap,
+  TrendingUp,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -33,6 +34,7 @@ const navItems = [
   { label: "Squads", href: "/squads", icon: Users },
   { label: "Communities", href: "/communities", icon: BookOpen },
   { label: "Teach", href: "/teach", icon: GraduationCap },
+  { label: "Growth", href: "/growth", icon: TrendingUp },
   { label: "Credits", href: "/credits", icon: Coins },
 ];
 
