@@ -142,11 +142,7 @@ export function AIMatchesWidget({ className }: { className?: string }) {
     loadMatches().finally(() => setLoading(false));
   }, []);
 
-  async function handleRefresh() {
-    setRefreshing(true);
-    await loadMatches();
-    setRefreshing(false);
-  }
+
 
   return (
     <Widget
