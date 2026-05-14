@@ -1,5 +1,7 @@
 "use client";
 
+import { memo } from "react";
+
 import { Widget, ProgressWidget, StreakWidget } from "@/components/shared/widgets";
 import { StatCard } from "@/components/shared/cards";
 import { StatusBadge, KCBadge } from "@/components/shared/badges";
@@ -20,7 +22,7 @@ import { cn } from "@/lib/utils";
    ═══════════════════════════════════════════════════════════ */
 
 /* ─── Stats Row (top of dashboard) ─── */
-export function StatsRow({ className }: { className?: string }) {
+export const StatsRow = memo(function StatsRow({ className }: { className?: string }) {
   return (
     <div className={cn("grid gap-3 grid-cols-2 lg:grid-cols-4", className)}>
       <StatCard
@@ -55,7 +57,7 @@ export function StatsRow({ className }: { className?: string }) {
       />
     </div>
   );
-}
+});
 
 /* ─── Contribution Stats Widget ─── */
 interface ContributionStat {
@@ -71,7 +73,7 @@ const CONTRIBUTION_STATS: ContributionStat[] = [
   { label: "Squads active", value: 2, icon: <Users className="w-3.5 h-3.5 text-warning" /> },
 ];
 
-export function ContributionStatsWidget({ className }: { className?: string }) {
+export const ContributionStatsWidget = memo(function ContributionStatsWidget({ className }: { className?: string }) {
   return (
     <Widget
       title="Contributions"
@@ -97,10 +99,10 @@ export function ContributionStatsWidget({ className }: { className?: string }) {
       </div>
     </Widget>
   );
-}
+});
 
 /* ─── Growth Progress Widget ─── */
-export function GrowthWidget({ className }: { className?: string }) {
+export const GrowthWidget = memo(function GrowthWidget({ className }: { className?: string }) {
   return (
     <Widget
       title="Growth"
@@ -125,4 +127,4 @@ export function GrowthWidget({ className }: { className?: string }) {
       </div>
     </Widget>
   );
-}
+});

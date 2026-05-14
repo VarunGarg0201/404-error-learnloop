@@ -375,15 +375,15 @@
     background: linear-gradient(90deg, oklch(0.22 0.018 264 / 0) 0%, oklch(0.28 0.018 264 / 0.25) 50%, oklch(0.22 0.018 264 / 0) 100%);
     background-size: 200% 100%;
   }
-  .animate-float { animation: float 4s ease-in-out infinite; }
-  .animate-slide-up { animation: slide-up-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-fade-in { animation: fade-in 0.3s ease-out forwards; }
-  .animate-scale-in { animation: scale-in 0.2s ease-out forwards; }
-  .animate-count-up { animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
-  .animate-breathe { animation: breathe 3s ease-in-out infinite; }
+  .animate-float { animation: float 4s ease-in-out infinite; will-change: transform; }
+  .animate-slide-up { animation: slide-up-fade 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
+  .animate-fade-in { animation: fade-in 0.3s ease-out forwards; will-change: opacity; }
+  .animate-scale-in { animation: scale-in 0.2s ease-out forwards; will-change: transform, opacity; }
+  .animate-count-up { animation: count-up 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
+  .animate-breathe { animation: breathe 3s ease-in-out infinite; will-change: opacity; }
   .animate-gradient-shift { animation: gradient-shift 6s ease infinite; background-size: 200% 200%; }
-  .animate-subtle-bounce { animation: subtle-bounce 2s ease-in-out infinite; }
-  .animate-slide-in-right { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+  .animate-subtle-bounce { animation: subtle-bounce 2s ease-in-out infinite; will-change: transform; }
+  .animate-slide-in-right { animation: slide-in-right 0.3s cubic-bezier(0.16, 1, 0.3, 1) forwards; will-change: transform, opacity; }
 
   .stagger-children > * {
     animation: slide-up-fade 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;

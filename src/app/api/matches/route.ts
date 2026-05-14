@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { findMatches } from "@/lib/ai/matching";
 import { DEMO_USER, DEMO_CANDIDATES } from "@/lib/ai/demo-data";
 import type { MatchQuery } from "@/lib/ai/types";
+import { rateLimit, getRateLimitKey } from "@/lib/api/rate-limit";
 
 /* ═══════════════════════════════════════════════════════════
    Match API — GET /api/matches
@@ -16,6 +17,17 @@ import type { MatchQuery } from "@/lib/ai/types";
    ═══════════════════════════════════════════════════════════ */
 
 export async function GET(request: Request) {
+  const start = performance.now();
+
+  // Rate limit: 20 requests per minute
+  const rl = rateLimit(getRateLimitKey(request, "matches"), { limit: 20, windowSeconds: 60 });
+  if (!rl.allowed) {
+    return NextResponse.json(
+      { data: null, error: "Too many requests", success: false },
+      { status: 429, headers: rl.headers }
+    );
+  }
+
   try {
     const { searchParams } = new URL(request.url);
 
@@ -32,18 +44,29 @@ export async function GET(request: Request) {
     // TODO: Phase 2 — Fetch real candidates from Supabase/Prisma
     const matches = await findMatches(DEMO_USER, DEMO_CANDIDATES, query);
 
-    return NextResponse.json({
-      data: matches,
-      meta: {
-        total: matches.length,
-        query: {
-          limit: query.limit,
-          minScore: query.minScore,
-          filters: query.filters,
+    const duration = Math.round(performance.now() - start);
+
+    return NextResponse.json(
+      {
+        data: matches,
+        meta: {
+          total: matches.length,
+          durationMs: duration,
+          query: {
+            limit: query.limit,
+            minScore: query.minScore,
+            filters: query.filters,
+          },
         },
+        success: true,
       },
-      success: true,
-    });
+      {
+        headers: {
+          "Cache-Control": "public, s-maxage=60, stale-while-revalidate=120",
+          "X-Response-Time": `${duration}ms`,
+        },
+      }
+    );
   } catch (error) {
     console.error("Match API error:", error);
     return NextResponse.json(
@@ -52,3 +75,4 @@ export async function GET(request: Request) {
     );
   }
 }
+

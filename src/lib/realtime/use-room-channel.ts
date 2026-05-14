@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect, useCallback, useRef } from "react";
 import { createClient } from "@/lib/supabase/client";
 import { useRoomStore } from "@/features/rooms/store";
 import type { RoomParticipant, ChatMessage, SharedRoomState } from "@/features/rooms/types";
@@ -141,6 +141,8 @@ export function useRoomChannel(roomId: string, userProfile: Partial<RoomParticip
     [roomId, store, supabase]
   );
 
+  const presenceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
   const updatePresence = useCallback(
     async (updates: Partial<RoomParticipant>) => {
       const { localParticipant } = store;
@@ -149,10 +151,16 @@ export function useRoomChannel(roomId: string, userProfile: Partial<RoomParticip
       const newParticipant = { ...localParticipant, ...updates };
       store.setLocalParticipant(newParticipant);
 
-      const channel = supabase.channel(`room:${roomId}`);
-      if (channel) {
-        await channel.track(newParticipant);
+      // Debounce the actual channel track to prevent flooding
+      if (presenceDebounceRef.current) {
+        clearTimeout(presenceDebounceRef.current);
       }
+      presenceDebounceRef.current = setTimeout(async () => {
+        const channel = supabase.channel(`room:${roomId}`);
+        if (channel) {
+          await channel.track(newParticipant);
+        }
+      }, 500);
     },
     [roomId, store, supabase]
   );

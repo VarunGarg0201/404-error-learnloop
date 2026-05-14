@@ -26,10 +26,17 @@ export async function GET(request: Request) {
     // 3. Infer DNA
     const dnaTraits = inferDNATraits(mockFeedbacks, mockExistingTraits);
 
-    return NextResponse.json({
-      success: true,
-      data: dnaTraits,
-    });
+    return NextResponse.json(
+      {
+        success: true,
+        data: dnaTraits,
+      },
+      {
+        headers: {
+          "Cache-Control": "private, s-maxage=30, stale-while-revalidate=60",
+        },
+      }
+    );
   } catch (error) {
     console.error("DNA API error:", error);
     return NextResponse.json(
