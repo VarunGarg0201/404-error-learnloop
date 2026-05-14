@@ -1,0 +1,5 @@
+{
+  "framework": "nextjs",
+  "buildCommand": "rm -rf .next && next build",
+  "installCommand": "npm install"
+}
