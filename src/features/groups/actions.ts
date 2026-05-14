@@ -54,6 +54,48 @@ export async function getUserGroups(type?: "squad" | "community") {
   }
 }
 
+export async function getAllGroups(type?: "squad" | "community") {
+  try {
+    const user = await getCurrentUser();
+    const dbUser = user
+      ? await prisma.user.findUnique({ where: { email: user.email } })
+      : null;
+
+    const whereClause: any = {};
+    if (type) whereClause.type = type;
+
+    const groups = await prisma.group.findMany({
+      where: whereClause,
+      include: {
+        members: {
+          include: {
+            user: {
+              select: {
+                id: true,
+                displayName: true,
+                avatarUrl: true,
+              },
+            },
+          },
+        },
+        squadGoals: true,
+      },
+      orderBy: { updatedAt: "desc" },
+    });
+
+    // Annotate each group with whether the current user is a member
+    const annotated = groups.map((g) => ({
+      ...g,
+      isJoined: dbUser ? g.members.some((m) => m.userId === dbUser.id) : false,
+    }));
+
+    return { data: annotated, success: true, error: null };
+  } catch (error: any) {
+    console.error("Failed to fetch all groups:", error);
+    return { data: null, success: false, error: "Failed to fetch groups." };
+  }
+}
+
 export async function createGroup(data: {
   type: "squad" | "community";
   name: string;

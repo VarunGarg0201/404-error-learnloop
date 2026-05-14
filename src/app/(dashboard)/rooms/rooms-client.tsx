@@ -1,19 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import { PageHeader } from "@/components/shared/page-header";
 import { SurfaceCard } from "@/components/shared/cards";
 import { StatusBadge, RoomTypeBadge } from "@/components/shared/badges";
 import { UserAvatar } from "@/components/shared/user-avatar";
+import { EmptyState } from "@/components/shared/empty-state";
 import { Button } from "@/components/ui/button";
+import { joinRoom } from "@/features/rooms/actions";
 import {
   MessageSquare,
   Users,
   Radio,
   Clock,
   Plus,
+  Loader2,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import Link from "next/link";
 
 interface FormattedRoom {
   id: string;
@@ -30,6 +35,18 @@ interface FormattedRoom {
 }
 
 function RoomCard({ room }: { room: FormattedRoom }) {
+  const router = useRouter();
+  const [joining, setJoining] = useState(false);
+
+  async function handleJoin() {
+    setJoining(true);
+    const res = await joinRoom(room.id);
+    if (res.success) {
+      router.push(`/rooms/${room.id}`);
+    }
+    setJoining(false);
+  }
+
   return (
     <SurfaceCard hover className="group cursor-pointer">
       {/* Header */}
@@ -86,8 +103,10 @@ function RoomCard({ room }: { room: FormattedRoom }) {
             size="xs"
             variant={room.isLive ? "default" : "secondary"}
             className="ml-1"
+            disabled={joining || room.participants >= room.maxParticipants}
+            onClick={handleJoin}
           >
-            {room.isLive ? "Join" : "Notify"}
+            {joining ? <Loader2 className="w-3 h-3 animate-spin" /> : room.isLive ? "Join" : "Notify"}
           </Button>
         </div>
       </div>
@@ -107,10 +126,12 @@ export function RoomsClient({ initialRooms }: { initialRooms: FormattedRoom[] })
         title="Study Rooms"
         description="Real-time collaboration spaces for learning together."
       >
-        <Button size="sm" className="gap-1.5">
-          <Plus className="w-3.5 h-3.5" />
-          Create room
-        </Button>
+        <Link href="/rooms/new">
+          <Button size="sm" className="gap-1.5">
+            <Plus className="w-3.5 h-3.5" />
+            Create room
+          </Button>
+        </Link>
       </PageHeader>
 
       {/* Filters */}
@@ -144,8 +165,20 @@ export function RoomsClient({ initialRooms }: { initialRooms: FormattedRoom[] })
       {/* Room Grid */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {filtered.length === 0 ? (
-          <div className="col-span-full py-12 text-center text-muted-foreground border border-dashed rounded-lg">
-            No rooms found. Be the first to create one!
+          <div className="col-span-full">
+            <EmptyState
+              icon={MessageSquare}
+              title="No rooms yet"
+              description="Be the first to create a study room!"
+              action={
+                <Link href="/rooms/new">
+                  <Button size="sm" className="gap-1.5">
+                    <Plus className="w-3.5 h-3.5" />
+                    Create room
+                  </Button>
+                </Link>
+              }
+            />
           </div>
         ) : (
           filtered.map((room) => (
