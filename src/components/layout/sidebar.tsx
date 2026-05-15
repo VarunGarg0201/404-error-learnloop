@@ -20,6 +20,10 @@ import {
   Brain,
   Rocket,
   Bell,
+  Code,
+  PenTool,
+  Library,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -38,8 +42,12 @@ const navItems = [
   { label: "Rooms", href: "/rooms", icon: MessageSquare },
   { label: "Squads", href: "/squads", icon: Users },
   { label: "Communities", href: "/communities", icon: BookOpen },
+  { label: "Campus", href: "/campus", icon: MapPin },
   { label: "Projects", href: "/projects", icon: Rocket },
+  { label: "Code", href: "/code", icon: Code },
+  { label: "Whiteboard", href: "/whiteboard", icon: PenTool },
   { label: "Teach", href: "/teach", icon: GraduationCap },
+  { label: "Library", href: "/library", icon: Library },
   { label: "DNA", href: "/dna", icon: Brain },
   { label: "Growth", href: "/growth", icon: TrendingUp },
   { label: "Credits", href: "/credits", icon: Coins },

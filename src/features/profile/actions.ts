@@ -22,6 +22,7 @@ export async function getFullProfile() {
         groupMemberships: true,
         activities: { orderBy: { createdAt: "desc" }, take: 5 },
         helpRequests: { orderBy: { createdAt: "desc" }, take: 5 },
+        microPosts: true,
       },
     });
 
@@ -43,6 +44,7 @@ export async function getFullProfile() {
         avgRating: Math.round(avgRating * 10) / 10,
         totalFeedback: feedback.length,
         totalGroups: dbUser.groupMemberships.length,
+        totalPosts: dbUser.microPosts.length,
       },
       success: true,
       error: null,

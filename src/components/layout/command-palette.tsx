@@ -23,6 +23,10 @@ import {
   Brain,
   Rocket,
   Bell,
+  Code,
+  PenTool,
+  Library,
+  MapPin,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -54,6 +58,10 @@ const STATIC_ITEMS: SearchItem[] = [
   { id: "dna", label: "Learning DNA", description: "Manage your learning traits", icon: <Brain className="w-4 h-4" />, href: "/dna", category: "page" },
   { id: "projects", label: "Build Together", description: "Collaborate on projects and hackathons", icon: <Rocket className="w-4 h-4" />, href: "/projects", category: "page" },
   { id: "notifications", label: "Notifications", description: "Your notification center", icon: <Bell className="w-4 h-4" />, href: "/notifications", category: "page" },
+  { id: "code", label: "Collaborative Code", description: "Pair program together", icon: <Code className="w-4 h-4" />, href: "/code", category: "page" },
+  { id: "whiteboard", label: "Whiteboard", description: "Draw and diagram together", icon: <PenTool className="w-4 h-4" />, href: "/whiteboard", category: "page" },
+  { id: "library", label: "Knowledge Library", description: "Browse community wisdom", icon: <Library className="w-4 h-4" />, href: "/library", category: "page" },
+  { id: "campus", label: "Campus Spaces", description: "Campus-specific community hubs", icon: <MapPin className="w-4 h-4" />, href: "/campus", category: "page" },
   { id: "create-room", label: "Create Room", description: "Start a new study session", icon: <Plus className="w-4 h-4" />, href: "/rooms/new", category: "action" },
   { id: "create-squad", label: "Create Squad", description: "Start an accountability group", icon: <Plus className="w-4 h-4" />, href: "/squads/new", category: "action" },
   { id: "create-community", label: "Create Community", description: "Build a community hub", icon: <Plus className="w-4 h-4" />, href: "/communities/new", category: "action" },

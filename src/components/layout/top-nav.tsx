@@ -36,6 +36,10 @@ const PAGE_TITLES: Record<string, string> = {
   "/teach": "Teach",
   "/credits": "Knowledge Credits",
   "/growth": "Growth Analytics",
+  "/code": "Collaborative Code",
+  "/whiteboard": "Whiteboard",
+  "/library": "Knowledge Library",
+  "/campus": "Campus Spaces",
 };
 
 interface TopNavProps {

@@ -8,6 +8,8 @@ import { EmptyState } from "@/components/shared/empty-state";
 import { StatusBadge } from "@/components/shared/badges";
 import { useUserStore } from "@/store/user-store";
 import { getFullProfile } from "@/features/profile/actions";
+import { evolveDNATraits } from "@/features/dna/evolve";
+import { Button } from "@/components/ui/button";
 import {
   TrendingUp,
   Flame,
@@ -138,9 +140,30 @@ export default function GrowthPage() {
   const avgRating = profile?.avgRating ?? 0;
   const dnaTraits = profile?.dnaTraits || [];
   const activities = profile?.activities || [];
+  const totalPosts = profile?.totalPosts ?? 0;
 
   // Streak calculation (simplified — count recent activities)
   const streak = Math.min(activities.length, 14);
+
+  // Teaching impact metrics
+  const teachingImpact = {
+    postsCreated: totalPosts,
+    studentsHelped: Math.floor(totalSessions * 0.6),
+    kcFromTeaching: Math.floor(totalKC * 0.4),
+  };
+
+  const [evolving, setEvolving] = useState(false);
+  const [evolved, setEvolved] = useState(false);
+  async function handleEvolveDNA() {
+    setEvolving(true);
+    const res = await evolveDNATraits();
+    setEvolving(false);
+    if (res.success) {
+      setEvolved(true);
+      const refreshed = await getFullProfile();
+      if (refreshed.data) setProfile(refreshed.data);
+    }
+  }
 
   // Achievements
   const achievedSessionMilestones = MILESTONES.filter((m) => totalSessions >= m.threshold);
@@ -190,6 +213,52 @@ export default function GrowthPage() {
                 </p>
               </div>
             )}
+          </Widget>
+
+          {/* Teaching Impact — Advanced Analytics */}
+          <Widget title="Teaching Impact" icon={BookOpen}>
+            <div className="grid grid-cols-3 gap-3">
+              <div className="text-center p-3 rounded-lg bg-primary/[0.04] border border-primary/10">
+                <p className="text-xl font-bold text-primary">{teachingImpact.postsCreated}</p>
+                <p className="text-[10px] text-muted-foreground">Posts Created</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-success/[0.04] border border-success/10">
+                <p className="text-xl font-bold text-success">{teachingImpact.studentsHelped}</p>
+                <p className="text-[10px] text-muted-foreground">Students Helped</p>
+              </div>
+              <div className="text-center p-3 rounded-lg bg-warning/[0.04] border border-warning/10">
+                <p className="text-xl font-bold text-warning">{teachingImpact.kcFromTeaching}</p>
+                <p className="text-[10px] text-muted-foreground">KC from Teaching</p>
+              </div>
+            </div>
+          </Widget>
+
+          {/* Contribution Breakdown — Advanced Analytics */}
+          <Widget title="Contribution Breakdown" icon={BarChart3}>
+            <div className="space-y-3">
+              {[
+                { label: "Teaching", value: totalPosts * 15, color: "bg-primary" },
+                { label: "Sessions", value: totalSessions * 10, color: "bg-success" },
+                { label: "Feedback", value: totalFeedback * 5, color: "bg-info" },
+                { label: "Squads", value: totalGroups * 20, color: "bg-warning" },
+              ].map((item) => {
+                const maxVal = Math.max(totalPosts * 15, totalSessions * 10, totalFeedback * 5, totalGroups * 20, 1);
+                return (
+                  <div key={item.label} className="space-y-1">
+                    <div className="flex justify-between text-[11px]">
+                      <span className="font-medium">{item.label}</span>
+                      <span className="text-muted-foreground tabular-nums">{item.value} pts</span>
+                    </div>
+                    <div className="h-2 rounded-full bg-muted/50 overflow-hidden">
+                      <div
+                        className={cn("h-full rounded-full transition-all duration-700", item.color)}
+                        style={{ width: `${Math.round((item.value / maxVal) * 100)}%` }}
+                      />
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
           </Widget>
         </div>
 
@@ -249,6 +318,29 @@ export default function GrowthPage() {
               />
             )}
           </Widget>
+
+          {/* AI DNA Evolution */}
+          <SurfaceCard className="bg-primary/[0.03] border-primary/10">
+            <div className="flex items-start gap-3">
+              <Brain className="w-5 h-5 text-primary shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-[13px] font-semibold mb-1">AI DNA Evolution</p>
+                <p className="text-[11px] text-muted-foreground leading-relaxed mb-2">
+                  Let AI analyze your activity patterns and automatically evolve your Learning DNA traits.
+                </p>
+                <Button
+                  size="sm"
+                  variant="secondary"
+                  className="gap-1.5 text-xs"
+                  onClick={handleEvolveDNA}
+                  disabled={evolving || evolved}
+                >
+                  {evolving ? <Loader2 className="w-3 h-3 animate-spin" /> : <ArrowUpRight className="w-3 h-3" />}
+                  {evolved ? "✓ DNA Updated" : "Evolve DNA"}
+                </Button>
+              </div>
+            </div>
+          </SurfaceCard>
 
           {/* Quick summary card */}
           <SurfaceCard className="bg-primary/[0.03] border-primary/10">
