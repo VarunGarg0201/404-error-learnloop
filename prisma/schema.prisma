@@ -44,6 +44,8 @@ model User {
   helpRequests     HelpRequest[]
   activities       Activity[]
   microPosts       MicroPost[]
+  createdProjects  Project[]          @relation("ProjectCreator")
+  projectMemberships ProjectMember[]  @relation("ProjectMemberships")
 }
 
 model LearningDNATrait {
@@ -234,7 +236,7 @@ model Activity {
 model MicroPost {
   id        String   @id @default(uuid())
   userId    String
-  type      String   // "lesson" | "explanation" | "recap" | "code" | "note"
+  type      String   // "lesson" | "explanation" | "recap" | "code" | "note" | "struggle" | "discussion"
   title     String
   content   String
   tags      String[]
@@ -249,3 +251,38 @@ model MicroPost {
   @@index([type])
   @@index([createdAt])
 }
+
+model Project {
+  id          String   @id @default(uuid())
+  title       String
+  description String
+  techStack   String[]
+  maxMembers  Int      @default(4)
+  status      String   @default("recruiting") // "recruiting" | "in-progress" | "completed"
+  category    String   @default("project") // "project" | "hackathon" | "startup" | "practice"
+  creatorId   String
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  creator     User            @relation("ProjectCreator", fields: [creatorId], references: [id], onDelete: Cascade)
+  members     ProjectMember[]
+
+  @@index([status])
+  @@index([creatorId])
+  @@index([createdAt])
+}
+
+model ProjectMember {
+  id        String   @id @default(uuid())
+  projectId String
+  userId    String
+  role      String   @default("member") // "creator" | "member"
+  joinedAt  DateTime @default(now())
+
+  project   Project  @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  user      User     @relation("ProjectMemberships", fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([projectId, userId])
+  @@index([userId])
+}
+

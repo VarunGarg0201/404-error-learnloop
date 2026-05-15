@@ -16,6 +16,10 @@ import {
   Coins,
   GraduationCap,
   TrendingUp,
+  Rss,
+  Brain,
+  Rocket,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useUIStore } from "@/store/ui-store";
@@ -30,12 +34,16 @@ import {
 const navItems = [
   { label: "Dashboard", href: "/dashboard", icon: LayoutDashboard },
   { label: "Discover", href: "/discover", icon: Compass },
+  { label: "Feed", href: "/feed", icon: Rss },
   { label: "Rooms", href: "/rooms", icon: MessageSquare },
   { label: "Squads", href: "/squads", icon: Users },
   { label: "Communities", href: "/communities", icon: BookOpen },
+  { label: "Projects", href: "/projects", icon: Rocket },
   { label: "Teach", href: "/teach", icon: GraduationCap },
+  { label: "DNA", href: "/dna", icon: Brain },
   { label: "Growth", href: "/growth", icon: TrendingUp },
   { label: "Credits", href: "/credits", icon: Coins },
+  { label: "Notifications", href: "/notifications", icon: Bell },
 ];
 
 const bottomNavItems = [

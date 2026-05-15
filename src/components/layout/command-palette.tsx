@@ -19,6 +19,10 @@ import {
   GraduationCap,
   Coins,
   TrendingUp,
+  Rss,
+  Brain,
+  Rocket,
+  Bell,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -46,10 +50,15 @@ const STATIC_ITEMS: SearchItem[] = [
   { id: "teach", label: "Teach", description: "Share micro lessons and earn KC", icon: <GraduationCap className="w-4 h-4" />, href: "/teach", category: "page" },
   { id: "growth", label: "Growth Analytics", description: "Track streaks and milestones", icon: <TrendingUp className="w-4 h-4" />, href: "/growth", category: "page" },
   { id: "credits", label: "Knowledge Credits", description: "Your learning economy dashboard", icon: <Coins className="w-4 h-4" />, href: "/credits", category: "page" },
+  { id: "feed", label: "Feed & Discussions", description: "Teaching, help, and discussions feed", icon: <Rss className="w-4 h-4" />, href: "/feed", category: "page" },
+  { id: "dna", label: "Learning DNA", description: "Manage your learning traits", icon: <Brain className="w-4 h-4" />, href: "/dna", category: "page" },
+  { id: "projects", label: "Build Together", description: "Collaborate on projects and hackathons", icon: <Rocket className="w-4 h-4" />, href: "/projects", category: "page" },
+  { id: "notifications", label: "Notifications", description: "Your notification center", icon: <Bell className="w-4 h-4" />, href: "/notifications", category: "page" },
   { id: "create-room", label: "Create Room", description: "Start a new study session", icon: <Plus className="w-4 h-4" />, href: "/rooms/new", category: "action" },
   { id: "create-squad", label: "Create Squad", description: "Start an accountability group", icon: <Plus className="w-4 h-4" />, href: "/squads/new", category: "action" },
   { id: "create-community", label: "Create Community", description: "Build a community hub", icon: <Plus className="w-4 h-4" />, href: "/communities/new", category: "action" },
   { id: "create-post", label: "Create Teaching Post", description: "Share what you learned", icon: <Plus className="w-4 h-4" />, href: "/teach", category: "action" },
+  { id: "create-project", label: "Create Project", description: "Start a collaborative project", icon: <Plus className="w-4 h-4" />, href: "/projects", category: "action" },
 ];
 
 export function CommandPalette() {

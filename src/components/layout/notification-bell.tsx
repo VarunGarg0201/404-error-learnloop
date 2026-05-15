@@ -201,11 +201,11 @@ export function NotificationBell() {
         {notifs.length > 0 && (
           <div className="border-t border-border/40">
             <Link
-              href="/dashboard"
+              href="/notifications"
               onClick={() => setOpen(false)}
               className="flex items-center justify-center py-2.5 text-[11px] font-medium text-primary hover:bg-accent/40 transition-colors"
             >
-              View all on dashboard
+              View all notifications
             </Link>
           </div>
         )}

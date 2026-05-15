@@ -29,6 +29,13 @@ const PAGE_TITLES: Record<string, string> = {
   "/profile": "Profile",
   "/settings": "Settings",
   "/assistant": "AI Assistant",
+  "/feed": "Feed & Discussions",
+  "/dna": "Learning DNA",
+  "/projects": "Build Together",
+  "/notifications": "Notifications",
+  "/teach": "Teach",
+  "/credits": "Knowledge Credits",
+  "/growth": "Growth Analytics",
 };
 
 interface TopNavProps {
