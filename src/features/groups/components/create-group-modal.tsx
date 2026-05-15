@@ -21,9 +21,10 @@ interface CreateGroupModalProps {
   isOpen: boolean;
   onOpenChange: (open: boolean) => void;
   defaultType?: GroupType;
+  onCreated?: () => void;
 }
 
-export function CreateGroupModal({ isOpen, onOpenChange, defaultType = "squad" }: CreateGroupModalProps) {
+export function CreateGroupModal({ isOpen, onOpenChange, defaultType = "squad", onCreated }: CreateGroupModalProps) {
   const router = useRouter();
   const [type, setType] = useState<GroupType>(defaultType);
   const [name, setName] = useState("");
@@ -66,6 +67,7 @@ export function CreateGroupModal({ isOpen, onOpenChange, defaultType = "squad" }
 
     if (res.success && res.data) {
       setCreatedGroup({ id: res.data.id, name: res.data.name, type: res.data.type });
+      onCreated?.();
     }
   };
 

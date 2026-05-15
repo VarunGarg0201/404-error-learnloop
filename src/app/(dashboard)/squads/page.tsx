@@ -164,30 +164,31 @@ export default function SquadsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [filter, setFilter] = useState<"all" | "joined">("all");
 
-  useEffect(() => {
-    async function fetchSquads() {
-      const { data } = await getAllGroups("squad");
-      if (data) {
-        setSquads(
-          data.map((s: any) => ({
-            id: s.id,
-            name: s.name,
-            description: s.description,
-            goal: s.squadGoals?.[0]?.title || "No active goal set",
-            members: s.members.map((m: any) => ({
-              name: m.user.displayName,
-              avatarUrl: m.user.avatarUrl,
-            })),
-            membersCount: s.membersCount,
-            streak: s.streakDays || 0,
-            isPrivate: s.isPrivate,
-            isJoined: s.isJoined,
-            tags: s.tags || [],
-          }))
-        );
-      }
-      setIsLoading(false);
+  async function fetchSquads() {
+    const { data } = await getAllGroups("squad");
+    if (data) {
+      setSquads(
+        data.map((s: any) => ({
+          id: s.id,
+          name: s.name,
+          description: s.description,
+          goal: s.squadGoals?.[0]?.title || "No active goal set",
+          members: s.members.map((m: any) => ({
+            name: m.user.displayName,
+            avatarUrl: m.user.avatarUrl,
+          })),
+          membersCount: s.membersCount,
+          streak: s.streakDays || 0,
+          isPrivate: s.isPrivate,
+          isJoined: s.isJoined,
+          tags: s.tags || [],
+        }))
+      );
     }
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
     fetchSquads();
   }, []);
 
@@ -277,6 +278,7 @@ export default function SquadsPage() {
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         defaultType="squad"
+        onCreated={fetchSquads}
       />
     </div>
   );

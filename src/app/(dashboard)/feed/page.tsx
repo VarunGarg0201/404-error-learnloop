@@ -205,6 +205,8 @@ export default function FeedPage() {
       setNewPost({ type: "discussion", title: "", content: "", tags: "", isAnonymous: false });
       setComposing(false);
       await load();
+    } else {
+      console.error("Feed post creation failed:", res.error);
     }
     setSubmitting(false);
   }

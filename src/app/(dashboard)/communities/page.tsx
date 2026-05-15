@@ -296,6 +296,7 @@ export default function CommunitiesPage() {
         isOpen={isCreateModalOpen}
         onOpenChange={setIsCreateModalOpen}
         defaultType="community"
+        onCreated={fetchCommunities}
       />
     </div>
   );
