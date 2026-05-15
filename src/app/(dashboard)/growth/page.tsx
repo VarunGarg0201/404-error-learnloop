@@ -117,6 +117,8 @@ export default function GrowthPage() {
   const { user } = useUserStore();
   const [profile, setProfile] = useState<any>(null);
   const [loading, setLoading] = useState(true);
+  const [evolving, setEvolving] = useState(false);
+  const [evolved, setEvolved] = useState(false);
 
   useEffect(() => {
     getFullProfile().then((res) => {
@@ -152,8 +154,6 @@ export default function GrowthPage() {
     kcFromTeaching: Math.floor(totalKC * 0.4),
   };
 
-  const [evolving, setEvolving] = useState(false);
-  const [evolved, setEvolved] = useState(false);
   async function handleEvolveDNA() {
     setEvolving(true);
     const res = await evolveDNATraits();
